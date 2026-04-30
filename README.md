@@ -26,12 +26,20 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
    git push -u origin main
    ```
 
-## Project layout
+## Project layout (Stage 3)
 
-- `app/` — MCP client, agent, guardrails, UI modules
-- `tests/` — pytest
-- `docs/` — notes, test results, prompt log (later stages); see `docs/problem_framing.md` for Stage 1
-- `app.py` — deploy entrypoint (Gradio in Stage 13)
+| Path | Role |
+|------|------|
+| `app/mcp_client.py` | MCP session and tool calls (official Python SDK) |
+| `app/agent.py` | LLM tool-calling loop |
+| `app/guardrails.py` | Validation, auth enforcement, unsafe prompt handling |
+| `app/ui.py` | Gradio chat UI |
+| `tests/` | pytest |
+| `docs/` | Problem framing, MCP discovery notes, test results, prompt log |
+| `scripts/` | Standalone tool discovery (Stage 5) |
+| `app.py` | Space/local entrypoint |
+
+See `docs/project_structure.md` for the tree and import boundaries.
 
 ## Commands
 
@@ -41,4 +49,4 @@ pytest
 
 ## Status
 
-Stage 0 scaffold complete — MCP discovery and agent logic follow in later stages.
+Stages 0–3 complete: scaffold, framing, Video 1, and documented layout. Next: config validation (Stage 4) and MCP discovery (Stage 5).
