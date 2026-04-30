@@ -4,6 +4,8 @@
 
 Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable HTTP). Inventory and orders come from tools, not free‑text guesses.
 
+**CI/CD:** GitHub Actions on **`main`** — automated **pytest** (offline suite) plus **Docker image build** on every push/PR, and an optional **manual EC2 deploy** workflow. See [CI/CD](#cicd) below.
+
 ## Deployment (EC2)
 
 **Deployment:** AWS EC2 with Docker Compose and Gradio on **7860**. Typical bootstrap:
@@ -37,6 +39,7 @@ The architecture diagram may show tracing stacks (e.g. Langfuse); the running co
 - uv dev (`pyproject.toml` / `uv.lock`); `requirements.txt` from `uv export` for pip and container builds.
 - PIN gating and customer scope in code (`auth_session.py`), aligned with `docs/prompt_iterations.md`.
 - Live MCP tests behind `MERIDIAN_*` env vars (`docs/test_results.md`).
+- **CI/CD:** GitHub Actions — `ci.yml` (uv lockfile sync, `pytest -m "not integration"`, `docker build`) and optional `deploy-ec2.yml` (SSH `git pull` + `docker compose up` on the instance when secrets are configured).
 
 ## Setup
 
@@ -59,8 +62,10 @@ Smoke scripts (MCP only): `scripts/discover_tools.py`, `smoke_product_tools.py`,
 
 ## CI/CD
 
-- **CI** (`.github/workflows/ci.yml`): on every push and PR to `main`, runs `uv sync --frozen`, `pytest -m "not integration"`, and `docker build` so the offline test suite and image stay green.
-- **Deploy EC2** (`.github/workflows/deploy-ec2.yml`): manual only — **Actions → Deploy EC2 → Run workflow**. Add repository secrets **`EC2_HOST`**, **`EC2_USER`**, **`EC2_SSH_PRIVATE_KEY`** (private half of the key pair that can SSH into the box). Default path **`/home/ubuntu/mcp`** must match where the repo was cloned; `.env` stays on the server (not in GitHub). Open **TCP 22** only from sources you trust (GitHub-hosted runners use changing egress IPs unless you use a self-hosted runner or other tunnel).
+Pipelines live under **`.github/workflows/`** and run on this repository’s **Actions** tab (status badge at the top of this README).
+
+- **CI** — `ci.yml`: on every **push** and **pull request** to `main`, runs `uv sync --frozen`, `pytest -m "not integration"`, and a **`docker build`** so merges keep the locked dependencies, unit path, and production image valid.
+- **CD (optional)** — `deploy-ec2.yml`: **manual** only (**Actions → Deploy EC2 → Run workflow**). Requires secrets **`EC2_HOST`**, **`EC2_USER`**, **`EC2_SSH_PRIVATE_KEY`**. Default deploy path **`/home/ubuntu/mcp`** must match the clone on the server; **`.env`** is never stored in GitHub. Restrict **TCP 22** to endpoints you trust (GitHub-hosted runners use changing egress unless you use a self-hosted runner or tunnel).
 
 ## Docs
 
@@ -73,6 +78,8 @@ Smoke scripts (MCP only): `scripts/discover_tools.py`, `smoke_product_tools.py`,
 | `docs/prompt_iterations.md` | System prompt versions |
 | `docs/aws_deployment.md` | EC2 + Docker Compose |
 | `docs/project_structure.md` | Tree |
+| `.github/workflows/ci.yml` | CI: pytest + Docker build |
+| `.github/workflows/deploy-ec2.yml` | Optional manual EC2 redeploy |
 
 ## Requirements export
 
