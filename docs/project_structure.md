@@ -13,7 +13,8 @@ app/
   ui.py             — Gradio chat surface
 tests/              — pytest
 docs/               — framing, MCP notes, **arch-diagram.png**, guardrails, test_results, prompt_iterations, prompt log
-scripts/            — discovery + smoke scripts (`smoke_order_placement.py` mutates orders); see `docs/`
+scripts/            — discovery, smoke scripts, optional `ec2_bootstrap_ubuntu.sh`
+docker-compose.yml  — EC2 / VM long-running container (`docker compose up -d`)
 app.py              — default: Gradio UI; `--print-config`; or CLI agent turn when args are passed
 pyproject.toml      — declared dependencies (uv)
 uv.lock             — locked versions

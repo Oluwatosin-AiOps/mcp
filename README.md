@@ -106,9 +106,14 @@ More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [S
 4. Under **Settings → Variables and secrets**, add **`OPENAI_API_KEY`** and **`MCP_SERVER_URL`** as **Secrets**. The UI can still appear without them; the first chat will show a configuration error until they are set.
 5. If the build succeeded once but the app is wedged, use **Settings → Factory rebuild**, then wait again for dependency install.
 
-### AWS instead of Spaces?
+### AWS — long-running link (EC2 or App Runner)
 
-**S3 alone cannot run this app** (it is not a web server for Python). For a **public URL** on AWS you need **compute** (e.g. **EC2** or **App Runner**) and optionally **HTTPS** in front. See **`docs/aws_deployment.md`** and the repo **`Dockerfile`** for a container you can run on EC2 or push to **ECR** for App Runner.
+**S3 cannot run this app** (no Python server there). For a **stable public URL** on AWS, use one of:
+
+1. **App Runner + ECR** — AWS gives **`https://….awsapprunner.com`** (HTTPS). Build the **`Dockerfile`**, push to **ECR**, create an App Runner service, set `OPENAI_API_KEY` / `MCP_SERVER_URL` as env/secrets, port **8080** (App Runner sets `PORT`).
+2. **EC2 + Docker Compose** — clone repo, fill **`.env`**, **`docker compose up -d`**, open **`http://<instance-ip>:7860`** (security group **7860**). HTTP unless you add ALB/nginx.
+
+Full copy-paste runbook: **`docs/aws_deployment.md`**. Compose file: **`docker-compose.yml`**. Optional first-boot helper: **`scripts/ec2_bootstrap_ubuntu.sh`**.
 
 ---
 
