@@ -106,14 +106,14 @@ More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [S
 4. Under **Settings → Variables and secrets**, add **`OPENAI_API_KEY`** and **`MCP_SERVER_URL`** as **Secrets**. The UI can still appear without them; the first chat will show a configuration error until they are set.
 5. If the build succeeded once but the app is wedged, use **Settings → Factory rebuild**, then wait again for dependency install.
 
-### AWS — long-running link (EC2 or App Runner)
+### AWS — long-running link
 
-**S3 cannot run this app** (no Python server there). For a **stable public URL** on AWS, use one of:
+**S3 cannot run this app** (no Python server there). **App Runner is not available for new customers** from **2026-04-30** onward — use **EC2 + Docker Compose** (fastest) or **ECS Fargate + ALB** (HTTPS without App Runner).
 
-1. **App Runner + ECR** — AWS gives **`https://….awsapprunner.com`** (HTTPS). Build the **`Dockerfile`**, push to **ECR**, create an App Runner service, set `OPENAI_API_KEY` / `MCP_SERVER_URL` as env/secrets, port **8080** (App Runner sets `PORT`).
-2. **EC2 + Docker Compose** — clone repo, fill **`.env`**, **`docker compose up -d`**, open **`http://<instance-ip>:7860`** (security group **7860**). HTTP unless you add ALB/nginx.
+1. **EC2 + `docker compose`** — **`http://<instance-ip>:7860`**. Optional **Caddy** on the same box for **HTTPS** with your own domain (steps in the doc).
+2. **ECS Fargate + ECR + ALB** — push the **`Dockerfile`** image to **ECR**, run a Fargate service behind an **Application Load Balancer** with **ACM**.
 
-Full copy-paste runbook: **`docs/aws_deployment.md`**. Compose file: **`docker-compose.yml`**. Optional first-boot helper: **`scripts/ec2_bootstrap_ubuntu.sh`**.
+Full runbook: **`docs/aws_deployment.md`**. Compose: **`docker-compose.yml`**. EC2 bootstrap: **`scripts/ec2_bootstrap_ubuntu.sh`**.
 
 ---
 

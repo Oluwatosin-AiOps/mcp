@@ -1,6 +1,6 @@
 # Run: docker build -t meridian-mcp .
 # Local:  docker run --rm -p 7860:7860 -e OPENAI_API_KEY -e MCP_SERVER_URL -e MODEL_NAME meridian-mcp
-# App Runner sets PORT=8080 — app reads PORT (see app/ui.py).
+# ECS / proxies: set -e PORT=8080 -p 8080:8080 if your target group expects 8080 (see docs/aws_deployment.md).
 FROM python:3.12-slim
 
 WORKDIR /app
