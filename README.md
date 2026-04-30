@@ -6,14 +6,12 @@ Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable
 
 **Deployment:** AWS EC2 with Docker Compose and Gradio on **7860**. Typical bootstrap:
 
-1. **Ubuntu 22.04 or 24.04 LTS** instance; security group allows **inbound TCP 7860** (and **80/443** if you terminate TLS on the box).
+1. **Ubuntu 22.04 or 24.04 LTS** instance; security group allows **inbound TCP 7860**.
 2. Install Docker: `curl -fsSL https://get.docker.com | sudo sh` (on newer Ubuntu, `apt install docker-compose-plugin` alone often fails).
 3. Clone the repo, `cp .env.example .env`, set `OPENAI_API_KEY` and `MCP_SERVER_URL`.
 4. `docker compose up -d --build` — open **`http://<your-public-ip>:7860`** (Gradio is **not** on port 80; `http://ip/` alone will show connection refused).
 
 Details: **`docs/aws_deployment.md`**, **`docker-compose.yml`**, **`scripts/ec2_diagnose.sh`** (run on the instance), **`scripts/ec2_bootstrap_ubuntu.sh`**.
-
-For **HTTPS**, use Caddy or an ALB + ACM (see the same doc). **ECS Fargate + ALB** is an alternative if you already use ECR.
 
 ## Architecture
 
@@ -66,7 +64,7 @@ Smoke scripts (MCP only): `scripts/discover_tools.py`, `smoke_product_tools.py`,
 | `docs/guardrails.md` | Input/output filters |
 | `docs/test_results.md` | Pytest layout |
 | `docs/prompt_iterations.md` | System prompt versions |
-| `docs/aws_deployment.md` | EC2, HTTPS, ECS |
+| `docs/aws_deployment.md` | EC2 + Docker Compose |
 | `docs/project_structure.md` | Tree |
 
 ## Requirements export

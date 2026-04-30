@@ -1,53 +1,18 @@
-# AWS — long-running public link
+# AWS EC2 deployment
 
-Meridian runs as a containerized HTTP service. **EC2 + Docker Compose** and **ECS Fargate** are the patterns documented here.
-
-App Runner: **new customers not accepted** from 2026‑04‑30 per AWS; use EC2 or ECS below.
-
-| Option | HTTPS |
-|--------|--------|
-| EC2 + Docker Compose | Optional (Caddy / ALB) |
-| ECS Fargate + ALB | Yes |
-| Lightsail VM | Same idea as EC2 |
-
-Process listens on `PORT` (`docker-compose.yml` sets 7860). Behind ALB targeting 8080, use `-e PORT=8080 -p 8080:8080`.
+The Meridian chatbot runs on **AWS EC2** with **Docker Compose**. The container builds from the repo **`Dockerfile`** and listens on **7860** (`docker-compose.yml`, `GRADIO_SERVER_NAME=0.0.0.0`).
 
 ---
 
-## Shared: build the image locally
-
-```bash
-docker build -t meridian-mcp:latest .
-```
-
-**ECR push** (optional — for ECS or sharing an image):
-
-```bash
-export AWS_REGION=us-east-1
-export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-export ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/meridian-mcp"
-
-aws ecr create-repository --repository-name meridian-mcp --region "$AWS_REGION" 2>/dev/null || true
-aws ecr get-login-password --region "$AWS_REGION" \
-  | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-
-docker tag meridian-mcp:latest "${ECR_URI}:latest"
-docker push "${ECR_URI}:latest"
-```
-
----
-
-## A) EC2 + Docker Compose
-
-### 1. Launch EC2
+## 1. Launch EC2
 
 - **AMI:** **Ubuntu 22.04 LTS** or **24.04 LTS** (“Jammy” / “Noble”). On some non‑LTS images, default apt mirrors may not yet ship a working **`docker-compose-plugin`**; the install script below avoids that.
 - **Instance type:** `t3.micro` / `t3a.micro` or `t3.small`.
-- **Security group:** inbound **TCP 7860** (and **80/443** if you add HTTPS below).
+- **Security group:** inbound **TCP 7860** (browser traffic to Gradio).
 
-### 2. Install Docker + Compose (works on LTS and most newer Ubuntu)
+---
 
-Use **Docker’s installer** for **Docker Engine + Compose v2** (covers releases where `apt install docker.io docker-compose-plugin` alone is incomplete):
+## 2. Install Docker Engine + Compose v2
 
 ```bash
 sudo apt-get update
@@ -66,7 +31,9 @@ docker --version
 docker compose version
 ```
 
-### 3. Clone and run the app
+---
+
+## 3. Clone and run
 
 ```bash
 git clone https://github.com/Oluwatosin-AiOps/mcp.git
@@ -76,11 +43,11 @@ nano .env   # OPENAI_API_KEY, MCP_SERVER_URL
 docker compose up -d --build
 ```
 
-### 4. URL
+---
 
-Use **`http://<public-ip-or-dns>:7860`**. The app listens on **7860**, not **80** — browsing **`http://54.x.x.x/`** (no port) hits port 80 and usually shows **connection refused** even when the container is healthy.
+## 4. Public URL
 
-**Security group:** inbound **TCP 7860** from your IP or `0.0.0.0/0` for a demo.
+Open **`http://<public-ip>:7860`**. The app listens on **7860**, not **80** — **`http://<ip>/`** (no port) hits port 80 and usually shows **connection refused** even when the container is healthy.
 
 **Sanity checks on the instance:**
 
@@ -90,14 +57,16 @@ docker compose logs -f --tail 50
 curl -sSI http://127.0.0.1:7860/ | head -n5
 ```
 
-If `curl` works on the instance but the browser does not, fix **security group** (TCP **7860**) or **UFW** on Ubuntu:
+If `curl` works on the instance but the browser does not, fix the **security group** (TCP **7860**) or **UFW** on Ubuntu:
 
 ```bash
 sudo ufw status verbose
 sudo ufw allow 7860/tcp && sudo ufw reload   # only if ufw is active
 ```
 
-Repo helper (clone/pull latest first):
+---
+
+## 5. Pull updates and redeploy
 
 ```bash
 cd ~/mcp   # your clone path
@@ -106,52 +75,14 @@ bash scripts/ec2_diagnose.sh
 docker compose down && docker compose up -d --build
 ```
 
-### Optional: HTTPS on EC2 with **Caddy** (free TLS, you need a **domain**)
-
-1. Point **`chat.yourdomain.com`** DNS **A record** to the instance public IP.
-2. Open security group **80** and **443**.
-3. On the instance, add a `Caddyfile` next to the repo:
-
-```text
-chat.yourdomain.com {
-    reverse_proxy localhost:7860
-}
-```
-
-4. Run Caddy (example one-liner):
-
-```bash
-docker run -d --name caddy --restart unless-stopped \
-  -p 80:80 -p 443:443 \
-  -v $PWD/Caddyfile:/etc/caddy/Caddyfile:ro \
-  caddy:2-alpine
-```
-
-Caddy obtains Let’s Encrypt certificates automatically. Your app stays on **7860**; only Caddy faces the internet.
-
-**Alternative:** **Application Load Balancer + ACM** certificate — more AWS-native, more clicks.
-
----
-
-## B) ECS Fargate + Application Load Balancer (HTTPS, no App Runner)
-
-High level (exact console steps change over time):
-
-1. Push image to **ECR** (commands above).
-2. **ECS** → create cluster → **Fargate** task definition: container port **8080**, set env vars / secrets for `OPENAI_API_KEY`, `MCP_SERVER_URL`, `MODEL_NAME`, and **`PORT=8080`**.
-3. Create a **service** with an **Application Load Balancer**, listener **HTTPS (443)** with **ACM** certificate, target group → container port **8080**.
-4. Use the ALB DNS name as your public URL.
-
-Docs: [ECS Fargate getting started](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/getting-started-fargate.html), [ALB with ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-load-balancing.html).
-
 ---
 
 ## Secrets
 
-Never commit API keys. On EC2, keep **`.env`** mode `600`. On ECS, use **Secrets Manager** or task definition secrets.
+Do not commit API keys. On the instance, keep **`.env`** readable only by your user (e.g. **`chmod 600 .env`**).
 
 ---
 
 ## Cost
 
-Stop the EC2 instance or scale ECS to zero when not demoing (Fargate tasks bill while running).
+Stop the EC2 instance when you are not running the demo to avoid ongoing compute charges.
