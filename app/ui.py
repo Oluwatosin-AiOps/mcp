@@ -46,8 +46,15 @@ def build_chat_interface() -> gr.ChatInterface:
     )
 
 
+def _server_port() -> int:
+    """HF sets PORT; avoid int('') if the variable exists but is empty."""
+    raw = (os.environ.get("PORT") or os.environ.get("GRADIO_SERVER_PORT") or "7860").strip()
+    if not raw:
+        return 7860
+    return int(raw)
+
+
 def launch_ui() -> None:
     """Listen on all interfaces; respect PORT for Hugging Face Spaces."""
     demo = build_chat_interface()
-    port = int(os.environ.get("PORT", os.environ.get("GRADIO_SERVER_PORT", "7860")))
-    demo.launch(server_name="0.0.0.0", server_port=port)
+    demo.launch(server_name="0.0.0.0", server_port=_server_port())

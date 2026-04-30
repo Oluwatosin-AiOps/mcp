@@ -98,6 +98,14 @@ Profile: **[tjesctacy](https://huggingface.co/tjesctacy)**.
 
 More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [Spaces README config](https://huggingface.co/docs/hub/spaces-config-reference).
 
+### Space stuck on “Loading” or “Building”
+
+1. **First build is slow** — installing `requirements.txt` (Gradio, MCP SDK, httpx, etc.) on **CPU Basic** often takes **about 10–20 minutes**. Wait before assuming it is broken.
+2. Open **Logs** (or the log panel on the Space page). Check **Build** logs: wait until `pip install` finishes and the container **starts** without error.
+3. Open **Runtime / Container** logs. If you see a Python **traceback** (e.g. `ValueError` on `PORT`, import error), fix and `git push hf main` again.
+4. Under **Settings → Variables and secrets**, add **`OPENAI_API_KEY`** and **`MCP_SERVER_URL`** as **Secrets**. The UI can still appear without them; the first chat will show a configuration error until they are set.
+5. If the build succeeded once but the app is wedged, use **Settings → Factory rebuild**, then wait again for dependency install.
+
 ---
 
 ## Documentation
