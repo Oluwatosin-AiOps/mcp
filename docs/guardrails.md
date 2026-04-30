@@ -1,24 +1,17 @@
 # Guardrails
 
-Purpose: keep the Meridian support bot **safe to demo** under assessment review—bounded inputs, refusal of common jailbreak and privilege-escalation wording, and a last-line defense if model output echoes secret-shaped strings.
+## Input (`check_user_message`)
 
-## User input (`check_user_message`)
+- Empty / too long messages rejected.
+- OpenAI-style secret pattern (`sk-…`) rejected on input.
+- Injection / jailbreak substrings → refusal.
+- Privilege-style asks (skip verify, other customers’ data, SQLi clichés) → separate refusal.
+- NFKC normalization before substring checks.
 
-- Empty / whitespace-only messages are rejected.
-- Messages longer than `MAX_USER_MESSAGE_CHARS` are rejected.
-- Substrings matching an OpenAI-style secret pattern (e.g. `sk-…`) are rejected so users do not paste keys into chat.
-- Prompt-injection and jailbreak phrases (e.g. “ignore previous instructions”, “developer mode”) yield a fixed refusal.
-- Privilege-style asks (e.g. “skip verification”, “another customer’s orders”, SQLi clichés) yield a separate refusal clarifying **verified account only**.
+## Output (`check_assistant_reply`)
 
-Checks use **NFKC Unicode normalization** before substring matching so trivial homoglyph swaps do not bypass filters.
+Secret-shaped strings in assistant text → neutral refusal before display. Length capped via `clip_assistant_reply`.
 
-## Model output (`check_assistant_reply`)
+## Limits
 
-- If the assistant text matches the same secret-shaped pattern, it is replaced with a neutral refusal before display (reduces accidental key echo).
-
-Reply length is still capped by `clip_assistant_reply`.
-
-## Limits (explicit)
-
-- Substring lists are **not** complete jailbreak coverage; they document intent and support pytest.
-- **Privileged data** and **hallucination** are primarily enforced by **tools-only policy** in the system prompt and MCP-backed facts—not by output semantic classifiers.
+Substring lists are incomplete by design. Facts come from MCP tools + system prompt policy, not semantic classifiers on output.

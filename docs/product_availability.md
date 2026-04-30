@@ -1,4 +1,4 @@
-# Product availability (Stage 8)
+# Product availability
 
 Meridian inventory is **only** accessed through MCP tools:
 

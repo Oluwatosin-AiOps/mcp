@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Optional EC2 user-data / first-boot script (Ubuntu 22.04+).
-# Does NOT contain secrets. After reboot, edit /opt/meridian-mcp/.env then:
-#   cd /opt/meridian-mcp && sudo docker compose up -d --build
+# EC2 user-data helper: Docker via get.docker.com, shallow clone. Edit /opt/meridian-mcp/.env then docker compose up -d --build.
 set -euxo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y docker.io docker-compose-plugin git
+apt-get install -y ca-certificates curl git
+curl -fsSL https://get.docker.com | sh
 systemctl enable --now docker
 install -d /opt
 if [[ ! -d /opt/meridian-mcp/.git ]]; then

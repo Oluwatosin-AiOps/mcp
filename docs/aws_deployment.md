@@ -1,16 +1,16 @@
 # AWS — long-running public link
 
-S3 cannot run this app; you need **compute**.
+S3 is static storage only—run the app on a VM or container service.
 
-> **App Runner (April 30, 2026):** AWS is **no longer onboarding new App Runner customers**. If you do not already have App Runner, use the paths below instead. See [AWS announcement](https://aws.amazon.com/apprunner/) / current AWS docs for your account.
+App Runner: **new customers not accepted** from 2026‑04‑30 per AWS; use EC2 or ECS below.
 
-| Option | HTTPS | Notes |
-|--------|-------|--------|
-| **EC2 + Docker Compose** | Optional (see below) | Fastest path; **`docker-compose.yml`** in repo |
-| **ECS Fargate + ALB** | Yes | Good if you already pushed to **ECR** and want managed containers |
-| **Lightsail** (VM + Docker) | Optional | Same pattern as EC2, simpler console / fixed pricing |
+| Option | HTTPS |
+|--------|--------|
+| EC2 + Docker Compose | Optional (Caddy / ALB) |
+| ECS Fargate + ALB | Yes |
+| Lightsail VM | Same idea as EC2 |
 
-Your app listens on **`PORT`** (default **7860** in `docker-compose.yml`). For plain **`docker run`** without compose, set **`-e PORT=8080 -p 8080:8080`** if you front it with a proxy expecting 8080.
+Process listens on `PORT` (`docker-compose.yml` sets 7860). Behind ALB targeting 8080, use `-e PORT=8080 -p 8080:8080`.
 
 ---
 
@@ -41,18 +41,34 @@ docker push "${ECR_URI}:latest"
 
 ### 1. Launch EC2
 
-- **AMI:** Ubuntu 22.04 or 24.04 LTS.
+- **AMI:** Prefer **Ubuntu 22.04 LTS** or **24.04 LTS** (“Jammy” / “Noble”). **Avoid bleeding‑edge** Ubuntu images for demos if you can: mirrors sometimes omit **`docker-compose-plugin`** and **`docker.io`** until updates land (you may see codenames like **Resolute** on non‑LTS releases).
 - **Instance type:** `t3.micro` / `t3a.micro` or `t3.small`.
 - **Security group:** inbound **TCP 7860** (and **80/443** if you add HTTPS below).
 
-### 2. Install and run
+### 2. Install Docker + Compose (works on LTS and most newer Ubuntu)
+
+Do **not** rely only on `apt install docker.io docker-compose-plugin` on brand‑new Ubuntu releases — use **Docker’s installer** (ships **Docker Engine + Compose v2**):
 
 ```bash
-sudo apt-get update && sudo apt-get install -y docker.io docker-compose-plugin git
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl git
+curl -fsSL https://get.docker.com | sudo sh
 sudo systemctl enable --now docker
 sudo usermod -aG docker ubuntu
-# re-login for docker group, or use sudo docker …
+```
 
+Log out and SSH back in so group **`docker`** applies, **or** prefix **`docker`** with **`sudo`** below.
+
+Verify:
+
+```bash
+docker --version
+docker compose version
+```
+
+### 3. Clone and run the app
+
+```bash
 git clone https://github.com/Oluwatosin-AiOps/mcp.git
 cd mcp
 cp .env.example .env
@@ -60,7 +76,7 @@ nano .env   # OPENAI_API_KEY, MCP_SERVER_URL
 docker compose up -d --build
 ```
 
-### 3. URL
+### 4. URL
 
 **`http://<EC2-public-dns>:7860`** — attach an **Elastic IP** if you want a stable IPv4.
 

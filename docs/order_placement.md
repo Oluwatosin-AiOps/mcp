@@ -1,4 +1,4 @@
-# Order placement (Stage 10)
+# Order placement
 
 ## MCP support
 
@@ -15,7 +15,7 @@ If `create_order` returns an error (unknown SKU, insufficient stock), surface th
 
 ## Smoke script (creates a real submitted order on the server)
 
-Requires `MCP_SERVER_URL` only. Uses assessment defaults unless you pass arguments:
+Requires `MCP_SERVER_URL`. Defaults shown below unless you pass arguments:
 
 ```bash
 uv run python scripts/smoke_order_placement.py

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify PIN then list orders via MCP (no OpenAI). For demos and Stage 9 checks."""
+"""Verify PIN then list_orders via MCP (no LLM)."""
 
 from __future__ import annotations
 

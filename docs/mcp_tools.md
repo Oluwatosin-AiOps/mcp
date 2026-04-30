@@ -1,22 +1,13 @@
-# MCP server tools (discovery notes)
+# MCP tools (discovery)
 
-Source: `scripts/discover_tools.py` against `MCP_SERVER_URL` (Streamable HTTP). Eight tools total.
-
-## Mapping to Meridian flows
+From `scripts/discover_tools.py` over Streamable HTTP (~8 tools).
 
 | Flow | Tools |
 |------|--------|
-| Product availability | `list_products` (optional `category`, `is_active`), `get_product` (`sku`), `search_products` (`query`) |
-| Authentication | `verify_customer_pin` (`email`, `pin`) returns customer details when valid; `get_customer` (`customer_id`) for lookups when UUID is known |
-| Order history | `list_orders` (optional `customer_id`, `status`), `get_order` (`order_id`) |
-| Order placement | `create_order` (`customer_id`, `items[]` with `sku`, `quantity`, `unit_price`, `currency`) |
+| Products | `list_products`, `search_products`, `get_product` |
+| Auth | `verify_customer_pin`, `get_customer` |
+| Orders | `list_orders`, `get_order`, `create_order` |
 
-## Agent implications
+PIN verification yields a customer UUID for `list_orders` / `create_order`. `create_order` line items must match MCP pricing/inventory; failures return tool errors.
 
-- After PIN verification, the response should expose a **customer id** (UUID) for `list_orders` / `create_order`. The agent must thread that id rather than guessing.
-- `create_order` expects structured line items and validates inventory; failures surface as tool errors (`ProductNotFoundError`, `InsufficientInventoryError`, etc.).
-- Product answers must come from these tools only (no invented SKUs or stock).
-
-## Pagination
-
-`tools/list` supports cursors; the discovery script follows `nextCursor` until exhausted.
+Discovery follows `nextCursor` until done.

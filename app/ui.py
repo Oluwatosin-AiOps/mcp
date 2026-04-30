@@ -1,4 +1,4 @@
-"""Gradio chat UI — Meridian MCP support bot (Stage 13)."""
+"""Gradio chat UI."""
 
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ def build_chat_interface() -> gr.ChatInterface:
 
 
 def _server_port() -> int:
-    """HF sets PORT; avoid int('') if the variable exists but is empty."""
+    """Parse PORT; empty string falls back to 7860."""
     raw = (os.environ.get("PORT") or os.environ.get("GRADIO_SERVER_PORT") or "7860").strip()
     if not raw:
         return 7860
@@ -55,6 +55,6 @@ def _server_port() -> int:
 
 
 def launch_ui() -> None:
-    """Listen on all interfaces; respect PORT for Hugging Face Spaces."""
+    """Bind 0.0.0.0; port from PORT or GRADIO_SERVER_PORT or 7860."""
     demo = build_chat_interface()
     demo.launch(server_name="0.0.0.0", server_port=_server_port())

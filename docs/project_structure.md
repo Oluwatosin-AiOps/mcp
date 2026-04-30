@@ -1,32 +1,15 @@
-# Project structure (Stage 3)
-
-Minimal layout for the Meridian MCP chatbot. Anything not listed here is optional glue (for example `scripts/` for Stage 5 discovery).
+# Project structure
 
 ```text
-app/
-  __init__.py       — application package
-  config.py         — environment loading and validation
-  mcp_client.py     — tool definitions for OpenAI; call tools; format results
-  agent.py          — async MCP session + OpenAI tool loop
-  guardrails.py     — input limits, injection/privilege refusal, sk-* pattern filter; reply clipping
-  auth_session.py   — verify_customer_pin unlocks sensitive MCP tools
-  ui.py             — Gradio chat surface
-tests/              — pytest
-docs/               — framing, MCP notes, **arch-diagram.png**, guardrails, test_results, prompt_iterations, prompt log
-scripts/            — discovery, smoke scripts, optional `ec2_bootstrap_ubuntu.sh`
-docker-compose.yml  — EC2 / VM long-running container (`docker compose up -d`)
-app.py              — default: Gradio UI; `--print-config`; or CLI agent turn when args are passed
-pyproject.toml      — declared dependencies (uv)
-uv.lock             — locked versions
-.python-version     — interpreter pin for uv
-README.md          — includes Hugging Face Spaces YAML front matter + GitHub-oriented body
-requirements.txt    — exported from uv for pip / Hugging Face Spaces
+app/           package: config, mcp_client, agent, guardrails, auth_session, ui
+app.py         entry: Gradio (no args), --print-config, or CLI agent turn
+tests/
+scripts/       discovery + smoke scripts
+docs/
+docker-compose.yml
+pyproject.toml / uv.lock / requirements.txt / .python-version
+README.md      Spaces YAML + body
 .env.example
 ```
 
-## Import boundaries
-
-- `app.py` should stay thin: load config, call into `app.ui` when the UI exists.
-- `app.agent` orchestrates the model and calls `app.mcp_client` for tools; it consults `app.guardrails` before trusting user text or returning sensitive tool output.
-
-This keeps the demo easy to walk in Video 3 without hiding logic behind frameworks.
+`app.py` stays thin. `app.agent` owns the tool loop and uses `mcp_client` + `guardrails`.

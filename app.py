@@ -1,10 +1,4 @@
-"""
-Hugging Face Spaces / local entrypoint.
-
-- No arguments: launch **Gradio** chat UI (Stage 13).
-- `--print-config` / `--config`: print MCP URL and model, then exit.
-- Any other arguments: one **CLI** agent turn (same as before).
-"""
+"""Entrypoint: Gradio (no args), --print-config, or CLI agent turn."""
 
 import sys
 

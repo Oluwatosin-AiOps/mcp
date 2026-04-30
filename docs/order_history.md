@@ -1,4 +1,4 @@
-# Order history (Stage 9)
+# Order history
 
 ## Policy
 
@@ -9,7 +9,7 @@
 
 | Step | Tool | Notes |
 |------|------|--------|
-| 1 | `verify_customer_pin` | `email`, `pin` — assessment users in `docs/auth_test_users.md` |
+| 1 | `verify_customer_pin` | `email`, `pin` — see `docs/auth_test_users.md` |
 | 2 | `list_orders` | Optional `customer_id`, `status`; use verified id |
 | 3 | `get_order` | `order_id` — detail view with line items |
 

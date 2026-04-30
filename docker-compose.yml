@@ -1,7 +1,4 @@
-# Long-running demo on EC2 (or any host with Docker).
-# 1. cp .env.example .env  &&  edit .env (OPENAI_API_KEY, MCP_SERVER_URL).
-# 2. docker compose up -d --build
-# 3. Open http://<host-public-ip>:7860  (security group: inbound TCP 7860).
+# cp .env.example .env && docker compose up -d --build  →  http://<host>:7860
 services:
   meridian:
     build: .
