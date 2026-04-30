@@ -1,0 +1,21 @@
+# Secrets and local env
+.env
+
+# Virtual environments
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+
+# Assessment / local planning (not tracked)
+GenAI\ MCP\ Assessment\ v1.5.md
+GenAI\ MCP\ Assessment\ v1.5\ (1).md
+execution.md
