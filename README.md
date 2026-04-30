@@ -37,7 +37,7 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 | `app/auth_session.py` | PIN verification gates order/account MCP tools per turn |
 | `app/ui.py` | Gradio chat UI |
 | `tests/` | pytest |
-| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, **`test_results.md`**, prompt log |
+| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, **`test_results.md`**, **`prompt_iterations.md`**, prompt log |
 | `scripts/` | Standalone tool discovery (Stage 5) |
 | `app.py` | Space/local entrypoint |
 

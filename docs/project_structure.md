@@ -12,7 +12,7 @@ app/
   auth_session.py   — verify_customer_pin unlocks sensitive MCP tools
   ui.py             — Gradio chat surface
 tests/              — pytest
-docs/               — framing, MCP notes, guardrails, **test_results.md**, prompt log
+docs/               — framing, MCP notes, guardrails, test_results, **prompt_iterations.md**, prompt log
 scripts/            — discovery + smoke scripts (`smoke_order_placement.py` mutates orders); see `docs/`
 app.py              — default: Gradio UI; `--print-config`; or CLI agent turn when args are passed
 pyproject.toml      — declared dependencies (uv)
