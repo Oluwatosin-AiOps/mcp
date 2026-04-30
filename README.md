@@ -50,13 +50,20 @@ uv run pytest
 uv run python app.py
 uv run python app.py "Search for wireless keyboards and summarize."
 uv run python scripts/discover_tools.py
+uv run python scripts/smoke_product_tools.py
 ```
 
-`app.py` with no extra arguments only prints config. With a message, it runs one agent turn (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `discover_tools.py` only needs `MCP_SERVER_URL`.
+`app.py` with no extra arguments only prints config. With a message, it runs one agent turn (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `discover_tools.py` and `smoke_product_tools.py` only need `MCP_SERVER_URL`.
+
+Optional live product tests:
+
+```bash
+MERIDIAN_PRODUCT_INTEGRATION=1 uv run pytest tests/test_product_integration.py -v
+```
 
 ## Status
 
-Stages 0–7 complete: MCP agent plus enforced PIN gate for orders/account tools. Next: product edge cases (Stage 8).
+Stages 0–8 complete through product smoke paths and grounding rules. Next: order history polish (Stage 9).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 
