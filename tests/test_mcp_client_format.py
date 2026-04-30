@@ -11,6 +11,19 @@ def test_format_tool_result_text_only():
     assert format_tool_result(result) == "SKU MON-1 available."
 
 
+def test_format_tool_result_skips_duplicate_structured_result():
+    """Meridian tools often repeat the same string in text blocks and structuredContent.result."""
+    body = "Found 2 widgets:\n[WID-1]"
+    result = types.CallToolResult(
+        content=[types.TextContent(type="text", text=body)],
+        isError=False,
+        structuredContent={"result": body},
+    )
+    formatted = format_tool_result(result)
+    assert formatted == body
+    assert '"result"' not in formatted
+
+
 def test_tool_to_openai_shape():
     tool = types.Tool(
         name="sample_tool",

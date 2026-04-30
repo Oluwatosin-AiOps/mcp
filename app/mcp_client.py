@@ -43,13 +43,26 @@ def format_tool_result(result: types.CallToolResult) -> str:
     parts: list[str] = []
     if result.isError:
         parts.append("Error from tool.")
+    text_segments: list[str] = []
     for block in result.content:
         if getattr(block, "type", None) == "text":
+            text_segments.append(block.text)
             parts.append(block.text)
         else:
             parts.append(str(block.model_dump()))
-    if result.structuredContent:
-        parts.append(json.dumps(result.structuredContent, indent=2))
+
+    combined_text = "\n".join(text_segments).strip()
+    sc = result.structuredContent
+    if sc:
+        redundant_result_string = (
+            isinstance(sc, dict)
+            and list(sc.keys()) == ["result"]
+            and isinstance(sc.get("result"), str)
+            and sc["result"].strip() == combined_text
+        )
+        if not redundant_result_string:
+            parts.append(json.dumps(sc, indent=2))
+
     out = "\n".join(p for p in parts if p).strip()
     return out if out else "(empty tool result)"
 
