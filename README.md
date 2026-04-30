@@ -17,97 +17,140 @@ tags:
 
 # Meridian Electronics — MCP Customer Support Chatbot
 
-Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling to reach Meridian’s order MCP server.
+This repository is a **small, explainable** customer-support prototype for **Meridian Electronics**. A user chats in **Gradio** (locally or on **Hugging Face Spaces**); **GPT-4o-mini** decides when to call tools on a remote **MCP server** (Streamable HTTP) so answers about **products**, **stock**, **PIN verification**, **orders**, and **order placement** stay **grounded** in server data instead of invented catalog text.
 
-The **YAML block above** is read by [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) (Gradio SDK, `app.py` entrypoint). GitHub will simply show it at the top of this file; that is normal for dual-purpose repos.
+The **YAML block above** is for [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference). GitHub shows the same file; that is normal for a single repo used for both.
 
-## Setup (Stage 0)
+---
 
-1. Install [uv](https://docs.astral.sh/uv/installation/). The repo pins **Python 3.12** in `.python-version`; uv will download that runtime if it is not installed yet.
+## Architecture
 
-2. Install dependencies from the lockfile:
+High-level view (Gradio → agent → MCP → Meridian services):
 
-   ```bash
-   uv sync
-   ```
+![Meridian customer support chatbot architecture](docs/arch-diagram.png)
 
-   uv keeps a project virtual environment under `.venv`. You do not need to activate it if you run everything through `uv run` (below).
+**How this maps to the code (today):**
 
-3. **Without uv:** use Python **3.10+** and `pip install -r requirements.txt`. That file is exported from `uv.lock` so Hugging Face Spaces and plain pip stay reproducible.
+| Diagram area | Implementation |
+|----------------|----------------|
+| Gradio UI | `app/ui.py` + root `app.py` (no args → `launch_ui()`) |
+| Agent & tool loop | `app/agent.py` — `AsyncOpenAI` + MCP `ClientSession`, up to `MAX_TOOL_ROUNDS` tool rounds per user message |
+| Guardrails | `app/guardrails.py` — input checks, assistant secret-pattern filter, reply clipping |
+| Auth policy | `app/auth_session.py` — blocks sensitive tools until `verify_customer_pin` succeeds; scopes `customer_id` |
+| MCP bridge | `app/mcp_client.py` — tool specs for OpenAI, `call_tool`, `format_tool_result` |
+| Config | `app/config.py` — `MCP_SERVER_URL`, `OPENAI_API_KEY`, `MODEL_NAME` from the environment |
 
-4. **Environment:** copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Never commit `.env`.
+The diagram’s **observability** panel (Langfuse / LangSmith, full request tracing) is **aspirational** for this assessment build: the running code focuses on **pytest**, smoke scripts, and clear logs in the terminal—not a hosted tracing stack.
 
-5. **GitHub repo:** create an empty repository on GitHub (e.g. under your user or org), then:
+---
 
-   ```bash
-   git remote add origin https://github.com/<your-account>/<your-repo>.git
-   git branch -M main
-   git push -u origin main
-   ```
+## Key decisions
 
-## Project layout (Stage 3)
+- **No LangChain** — direct OpenAI SDK + official **MCP Python SDK** so every hop is easy to justify in review and in Video 3.
+- **GPT-4o-mini** — cost-effective default; override with `MODEL_NAME` if needed.
+- **uv** + **`pyproject.toml`** / **`uv.lock`** for dev; root **`requirements.txt`** is **`uv export`** for pip and Hugging Face.
+- **PIN gating in code**, not only in the prompt — see `docs/prompt_iterations.md` for how the system prompt was tightened to match `SessionAuthState`.
+- **Guardrails** for injection / privilege wording, Unicode normalisation, and `sk-…`-shaped strings — see `docs/guardrails.md`.
+- **Integration tests opt-in** via `MERIDIAN_*` env vars so default `pytest` stays offline-safe (`docs/test_results.md`).
 
-| Path | Role |
-|------|------|
-| `app/config.py` | Load `.env`, validate `MCP_SERVER_URL`, `OPENAI_API_KEY`, `MODEL_NAME` |
-| `app/mcp_client.py` | Tool specs for OpenAI, ``tools/call``, format results for the model |
-| `app/agent.py` | GPT-4o-mini tool loop over MCP (Streamable HTTP) |
-| `app/guardrails.py` | Input validation, injection/privilege refusal, secret-pattern filter, reply clipping |
-| `app/auth_session.py` | PIN verification gates order/account MCP tools per turn |
-| `app/ui.py` | Gradio chat UI |
-| `tests/` | pytest |
-| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, **`test_results.md`**, **`prompt_iterations.md`**, prompt log |
-| `scripts/` | Standalone tool discovery (Stage 5) |
-| `app.py` | Space/local entrypoint |
+---
 
-See `docs/project_structure.md` for the tree and import boundaries.
+## Setup
 
-## Commands
+1. Install **[uv](https://docs.astral.sh/uv/installation/)**. Python **3.12** is pinned in `.python-version`.
+2. **`uv sync`** — creates `.venv` with locked dependencies.
+3. **Environment:** copy `.env.example` → `.env` and set at least **`OPENAI_API_KEY`** and **`MCP_SERVER_URL`**. Never commit `.env`.
+4. **Without uv:** Python **3.10+** and **`pip install -r requirements.txt`**.
+
+---
+
+## Run locally
+
+```bash
+uv run python app.py                    # Gradio UI (default host/port; uses PORT on Spaces)
+uv run python app.py --print-config     # Print MCP URL + model, exit
+uv run python app.py "Your question"    # One-shot CLI agent turn
+```
+
+**Smoke scripts (MCP only, no LLM):** `scripts/discover_tools.py`, `scripts/smoke_product_tools.py`, `scripts/smoke_order_history.py`, `scripts/smoke_order_placement.py` (placement **writes** orders — assessment endpoint only).
+
+---
+
+## Tests
 
 ```bash
 uv run pytest
-uv run pytest -m "not integration"   # same fast suite when integration tests are marked
-uv run python app.py                 # Gradio UI (opens browser locally; binds 0.0.0.0:7860 by default)
-uv run python app.py --print-config   # print MCP URL + model, then exit
-uv run python app.py "Search for wireless keyboards and summarize."   # one-shot CLI agent turn
-uv run python scripts/discover_tools.py
-uv run python scripts/smoke_product_tools.py
-uv run python scripts/smoke_order_history.py
-uv run python scripts/smoke_order_placement.py
+uv run pytest -m "not integration" -q    # fast suite; integration tests deselected
 ```
 
-**`app.py`:** no arguments → **Gradio** chat UI (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `--print-config` prints settings only. Any other arguments → one **CLI** agent turn. On **Hugging Face Spaces**, set secrets for `OPENAI_API_KEY`, `MCP_SERVER_URL`, and `MODEL_NAME`; the Space should run `python app.py` so `PORT` is honored.
+Optional live MCP tests: set **`MERIDIAN_PRODUCT_INTEGRATION`**, **`MERIDIAN_ORDER_INTEGRATION`**, or **`MERIDIAN_CREATE_ORDER_INTEGRATION`** to `1` (see `docs/test_results.md`).
 
-`discover_tools.py` and `smoke_product_tools.py` only need `MCP_SERVER_URL`.
+---
 
-Optional live product tests:
+## Hugging Face Space (account **tjesctacy**)
 
-```bash
-MERIDIAN_PRODUCT_INTEGRATION=1 uv run pytest tests/test_product_integration.py -v
-MERIDIAN_ORDER_INTEGRATION=1 uv run pytest tests/test_order_history_integration.py -v
-MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_integration.py -v
-```
+Profile: **[tjesctacy](https://huggingface.co/tjesctacy)**.
 
-`smoke_order_placement.py` and create-order tests **write** orders; use only on the assessment MCP endpoint.
+1. **[Create a new Space](https://huggingface.co/new-space)** — owner **tjesctacy**, SDK **Gradio**, link repo **`Oluwatosin-AiOps/mcp`** (branch `main`).
+2. **Secrets:** **`OPENAI_API_KEY`**, **`MCP_SERVER_URL`**, optional **`MODEL_NAME`**.
+3. Build uses root **`requirements.txt`**; **`PORT`** is set by the platform (handled in `app/ui.py`).
+4. Live URL: **`https://huggingface.co/spaces/tjesctacy/<space-name>`** — smoke-test the chat and keep a **screenshot** for submission.
 
-## Hugging Face Space (Stage 15) — your account **tjesctacy**
+More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [Spaces README config](https://huggingface.co/docs/hub/spaces-config-reference).
 
-Profile: **[Oluwatosin Jegede / tjesctacy](https://huggingface.co/tjesctacy)**.
+---
 
-1. **[Create a new Space](https://huggingface.co/new-space)** under **tjesctacy**, choose a name (e.g. `meridian-mcp-chatbot`), SDK **Gradio**, and **connect this GitHub repo** (`Oluwatosin-AiOps/mcp`, branch `main`).  
-2. In the Space **Settings → Secrets and variables**, add:
-   - **`OPENAI_API_KEY`** (Secret)
-   - **`MCP_SERVER_URL`** (same value you use locally — assessment MCP HTTPS URL)
-   - **`MODEL_NAME`** = `gpt-4o-mini` (optional; matches local default)  
-3. Let the Space **build** (installs from root **`requirements.txt`**). **`PORT`** is set by the platform; `app/ui.py` uses it.  
-4. Open **`https://huggingface.co/spaces/tjesctacy/<your-space-name>`**, run one short chat (e.g. list monitors), then take a **screenshot** for the submission rubric.  
-5. More detail: [Gradio Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [configuration reference](https://huggingface.co/docs/hub/spaces-config-reference).
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| `docs/arch-diagram.png` | Architecture figure (same graphic as project root `arch-diagram.png` if present) |
+| `docs/problem_framing.md` | Business problem and scope |
+| `docs/mcp_tools.md` | Discovered MCP tools summary |
+| `docs/guardrails.md` | Guardrail behaviour and limits |
+| `docs/test_results.md` | Pytest layout and last captured summary |
+| `docs/prompt_iterations.md` | System prompt versions (Stage 16) |
+| `docs/project_structure.md` | Directory layout and import boundaries |
+
+---
+
+## Limitations & improvements
+
+**Limitations**
+
+- **No multi-turn server-side session store** — auth state is **per `run_agent` call**; the UI relies on the model carrying context in the chat thread for a natural conversation.
+- **Substring guardrails** — not a complete jailbreak taxonomy; depth is intentionally bounded for the 3-hour-style assessment.
+- **No production observability** wired in code (metrics, hosted traces) despite the diagram’s optional tracing box.
+
+**Reasonable next steps**
+
+- Persist minimal session metadata if product requirements grow.
+- Expand integration coverage and a tiny **eval** set for regression on tool-choice behaviour.
+- Harden rate limiting and redact logs if exposed beyond localhost.
+
+---
+
+## Project layout (quick reference)
+
+| Path | Role |
+|------|------|
+| `app/config.py` | Environment loading and validation |
+| `app/mcp_client.py` | OpenAI tool specs, MCP `tools/call`, result formatting |
+| `app/agent.py` | Tool-calling loop over Streamable HTTP MCP |
+| `app/guardrails.py` | Input / output safety and clipping |
+| `app/auth_session.py` | PIN verification gates sensitive tools |
+| `app/ui.py` | Gradio `ChatInterface` |
+| `app.py` | Entrypoint: UI, `--print-config`, or CLI |
+| `tests/` | pytest |
+| `scripts/` | Discovery and smoke scripts |
+
+---
 
 ## Status
 
-Repo is **Stage 15–ready**: `requirements.txt` exported from `uv.lock`, root **`app.py`** launches Gradio with no args, README includes Space **front matter**. **You** still create the Space under **tjesctacy**, add secrets, verify the live URL, and capture the screenshot. Next: Video 3 / final polish (Stages 16–18 as needed).
+**Stages 16–17:** `docs/prompt_iterations.md` is populated with three real prompt versions; this README carries **overview, architecture (with diagram), decisions, setup, tests, limitations, and improvements**. **Stage 15** Space deploy and screenshot remain on you at Hugging Face.
 
-Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
+Regenerate **`requirements.txt`** after dependency changes:
 
 ```bash
 uv export --format requirements-txt --no-hashes --no-annotate > requirements.txt
