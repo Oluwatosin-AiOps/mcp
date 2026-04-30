@@ -1,6 +1,25 @@
+---
+title: Meridian MCP Customer Support
+emoji: 🛒
+colorFrom: blue
+colorTo: gray
+sdk: gradio
+sdk_version: 6.13.0
+python_version: "3.12"
+app_file: app.py
+pinned: false
+short_description: GPT-4o-mini + MCP (Meridian order server) customer support chatbot.
+tags:
+  - gradio
+  - mcp
+  - openai
+---
+
 # Meridian Electronics — MCP Customer Support Chatbot
 
 Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling to reach Meridian’s order MCP server.
+
+The **YAML block above** is read by [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) (Gradio SDK, `app.py` entrypoint). GitHub will simply show it at the top of this file; that is normal for dual-purpose repos.
 
 ## Setup (Stage 0)
 
@@ -71,9 +90,22 @@ MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_int
 
 `smoke_order_placement.py` and create-order tests **write** orders; use only on the assessment MCP endpoint.
 
+## Hugging Face Space (Stage 15) — your account **tjesctacy**
+
+Profile: **[Oluwatosin Jegede / tjesctacy](https://huggingface.co/tjesctacy)**.
+
+1. **[Create a new Space](https://huggingface.co/new-space)** under **tjesctacy**, choose a name (e.g. `meridian-mcp-chatbot`), SDK **Gradio**, and **connect this GitHub repo** (`Oluwatosin-AiOps/mcp`, branch `main`).  
+2. In the Space **Settings → Secrets and variables**, add:
+   - **`OPENAI_API_KEY`** (Secret)
+   - **`MCP_SERVER_URL`** (same value you use locally — assessment MCP HTTPS URL)
+   - **`MODEL_NAME`** = `gpt-4o-mini` (optional; matches local default)  
+3. Let the Space **build** (installs from root **`requirements.txt`**). **`PORT`** is set by the platform; `app/ui.py` uses it.  
+4. Open **`https://huggingface.co/spaces/tjesctacy/<your-space-name>`**, run one short chat (e.g. list monitors), then take a **screenshot** for the submission rubric.  
+5. More detail: [Gradio Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [configuration reference](https://huggingface.co/docs/hub/spaces-config-reference).
+
 ## Status
 
-Stages 0–13 complete (Gradio UI in `app/ui.py`, launched via `app.py`). Next: Hugging Face deployment (Stage 15) and Video 2 / Video 3 per assessment timeline.
+Repo is **Stage 15–ready**: `requirements.txt` exported from `uv.lock`, root **`app.py`** launches Gradio with no args, README includes Space **front matter**. **You** still create the Space under **tjesctacy**, add secrets, verify the live URL, and capture the screenshot. Next: Video 3 / final polish (Stages 16–18 as needed).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 

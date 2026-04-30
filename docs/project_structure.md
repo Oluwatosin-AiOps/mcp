@@ -18,7 +18,7 @@ app.py              — default: Gradio UI; `--print-config`; or CLI agent turn 
 pyproject.toml      — declared dependencies (uv)
 uv.lock             — locked versions
 .python-version     — interpreter pin for uv
-README.md
+README.md          — includes Hugging Face Spaces YAML front matter + GitHub-oriented body
 requirements.txt    — exported from uv for pip / Hugging Face Spaces
 .env.example
 ```
