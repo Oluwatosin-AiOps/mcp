@@ -9,7 +9,7 @@ This project is run on **AWS EC2** (not Hugging Face Spaces—Spaces builds were
 1. **Ubuntu 22.04 or 24.04 LTS** instance; security group allows **inbound TCP 7860** (and **80/443** if you terminate TLS on the box).
 2. Install Docker: `curl -fsSL https://get.docker.com | sudo sh` (on newer Ubuntu, `apt install docker-compose-plugin` alone often fails).
 3. Clone the repo, `cp .env.example .env`, set `OPENAI_API_KEY` and `MCP_SERVER_URL`.
-4. `docker compose up -d --build` — app at **`http://<instance-public-dns>:7860`**.
+4. `docker compose up -d --build` — open **`http://<your-public-ip>:7860`** (Gradio is **not** on port 80; `http://ip/` alone will show connection refused).
 
 Details: **`docs/aws_deployment.md`**, **`docker-compose.yml`**, optional **`scripts/ec2_bootstrap_ubuntu.sh`**.
 

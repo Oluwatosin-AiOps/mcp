@@ -78,7 +78,19 @@ docker compose up -d --build
 
 ### 4. URL
 
-**`http://<EC2-public-dns>:7860`** — attach an **Elastic IP** if you want a stable IPv4.
+Use **`http://<public-ip-or-dns>:7860`**. The app listens on **7860**, not **80** — browsing **`http://54.x.x.x/`** (no port) hits port 80 and usually shows **connection refused** even when the container is healthy.
+
+**Security group:** inbound **TCP 7860** from your IP or `0.0.0.0/0` for a demo.
+
+**Sanity checks on the instance:**
+
+```bash
+docker compose ps
+docker compose logs -f --tail 50
+curl -sSI http://127.0.0.1:7860/ | head -n5
+```
+
+If `curl` returns **200** locally but the browser fails, the problem is almost always **wrong URL (missing `:7860`)** or the **security group**.
 
 ### Optional: HTTPS on EC2 with **Caddy** (free TLS, you need a **domain**)
 
