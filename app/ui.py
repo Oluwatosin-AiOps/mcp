@@ -12,7 +12,7 @@ from app.config import ConfigurationError, Settings
 DESCRIPTION = """
 Ask about **products**, **stock**, **search**, or **orders**. Sensitive actions (order history, placing orders, customer profile by id) require **PIN verification** in the same conversation first.
 
-Use **assessment test accounts** only. **Do not paste API keys or secrets** into this chat.
+**Do not paste API keys or secrets** into this chat.
 """.strip()
 
 EXAMPLES = [
