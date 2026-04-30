@@ -48,15 +48,18 @@ See `docs/project_structure.md` for the tree and import boundaries.
 ```bash
 uv run pytest
 uv run pytest -m "not integration"   # same fast suite when integration tests are marked
-uv run python app.py
-uv run python app.py "Search for wireless keyboards and summarize."
+uv run python app.py                 # Gradio UI (opens browser locally; binds 0.0.0.0:7860 by default)
+uv run python app.py --print-config   # print MCP URL + model, then exit
+uv run python app.py "Search for wireless keyboards and summarize."   # one-shot CLI agent turn
 uv run python scripts/discover_tools.py
 uv run python scripts/smoke_product_tools.py
 uv run python scripts/smoke_order_history.py
 uv run python scripts/smoke_order_placement.py
 ```
 
-`app.py` with no extra arguments only prints config. With a message, it runs one agent turn (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `discover_tools.py` and `smoke_product_tools.py` only need `MCP_SERVER_URL`.
+**`app.py`:** no arguments → **Gradio** chat UI (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `--print-config` prints settings only. Any other arguments → one **CLI** agent turn. On **Hugging Face Spaces**, set secrets for `OPENAI_API_KEY`, `MCP_SERVER_URL`, and `MODEL_NAME`; the Space should run `python app.py` so `PORT` is honored.
+
+`discover_tools.py` and `smoke_product_tools.py` only need `MCP_SERVER_URL`.
 
 Optional live product tests:
 
@@ -70,7 +73,7 @@ MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_int
 
 ## Status
 
-Stages 0–12 complete (pytest coverage map, `docs/test_results.md`, `@integration` marker). Next: Gradio UI (Stage 13).
+Stages 0–13 complete (Gradio UI in `app/ui.py`, launched via `app.py`). Next: Hugging Face deployment (Stage 15) and Video 2 / Video 3 per assessment timeline.
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 

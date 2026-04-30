@@ -14,7 +14,7 @@ app/
 tests/              — pytest
 docs/               — framing, MCP notes, guardrails, **test_results.md**, prompt log
 scripts/            — discovery + smoke scripts (`smoke_order_placement.py` mutates orders); see `docs/`
-app.py              — Hugging Face Spaces / local entrypoint
+app.py              — default: Gradio UI; `--print-config`; or CLI agent turn when args are passed
 pyproject.toml      — declared dependencies (uv)
 uv.lock             — locked versions
 .python-version     — interpreter pin for uv

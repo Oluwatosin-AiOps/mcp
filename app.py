@@ -1,7 +1,9 @@
 """
-Hugging Face Spaces / local entrypoint for the Gradio UI.
+Hugging Face Spaces / local entrypoint.
 
-Without arguments: print config. With arguments: run one agent turn (Stage 6 smoke test).
+- No arguments: launch **Gradio** chat UI (Stage 13).
+- `--print-config` / `--config`: print MCP URL and model, then exit.
+- Any other arguments: one **CLI** agent turn (same as before).
 """
 
 import sys
@@ -10,19 +12,31 @@ from app.agent import run_cli
 from app.config import ConfigurationError, Settings
 
 
-def main() -> None:
-    if len(sys.argv) > 1:
-        run_cli()
-        return
-
+def _print_config() -> None:
     try:
         settings = Settings.from_env()
     except ConfigurationError as exc:
         raise SystemExit(f"Configuration error: {exc}") from exc
-
-    print("Meridian chatbot — pass a question as argv to run the agent, or use Stage 13 UI.")
+    print("Meridian chatbot — configuration")
     print(f"MCP server: {settings.mcp_server_url}")
     print(f"Model: {settings.model_name}")
+    print("Launch UI: uv run python app.py")
+    print('CLI one-shot: uv run python app.py "Your question here"')
+
+
+def main() -> None:
+    argv = sys.argv[1:]
+    if not argv:
+        from app.ui import launch_ui
+
+        launch_ui()
+        return
+
+    if argv[0] in ("--print-config", "--config", "-c"):
+        _print_config()
+        return
+
+    run_cli()
 
 
 if __name__ == "__main__":

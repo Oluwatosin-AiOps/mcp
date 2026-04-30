@@ -11,8 +11,9 @@ uv run pytest -v
 ```
 
 ```
-======================== 36 passed, 8 skipped in 0.52s =========================
+======================== 37 passed, 8 skipped in … =========================
 ```
+*(Includes `tests/test_ui_smoke.py`; counts change as tests are added.)*
 
 ## What the suite covers
 
@@ -23,6 +24,7 @@ uv run pytest -v
 | Guardrails | `test_guardrails.py` | Injection, privilege, NFKC, secret-shaped strings, clipping |
 | MCP formatting | `test_mcp_client_format.py` | Tool-to-OpenAI shape, duplicate structured content dedupe |
 | Agent boundary | `test_run_agent_guardrails.py` | `run_agent` returns refusal **before** MCP on blocked input |
+| UI smoke | `test_ui_smoke.py` | `build_chat_interface()` returns a `gr.ChatInterface` |
 | Live MCP | `test_product_integration.py`, `test_order_history_integration.py`, `test_order_placement_integration.py` | Marked `@pytest.mark.integration`; opt-in via env (see README) |
 
 ## Integration-only run examples
@@ -36,10 +38,10 @@ MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_int
 Filter by marker:
 
 ```bash
-uv run pytest -m "not integration" -q    # 36 passed, 8 deselected (integration tests not collected)
+uv run pytest -m "not integration" -q    # fast suite only; integration tests deselected
 uv run pytest -m integration -v          # integration tests only (still skip inside module without MERIDIAN_* )
 ```
 
 ## Screenshot
 
-If the assessment asks for a screenshot, capture your terminal after `uv run pytest -v` showing **36 passed, 8 skipped** (or the current counts).
+If the assessment asks for a screenshot, capture your terminal after `uv run pytest -v` showing **37 passed, 8 skipped** (or the current counts).
