@@ -30,7 +30,7 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 
 - `app/` — MCP client, agent, guardrails, UI modules
 - `tests/` — pytest
-- `docs/` — notes, test results, prompt log (later stages)
+- `docs/` — notes, test results, prompt log (later stages); see `docs/problem_framing.md` for Stage 1
 - `app.py` — deploy entrypoint (Gradio in Stage 13)
 
 ## Commands
