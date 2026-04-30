@@ -52,6 +52,7 @@ uv run python app.py "Search for wireless keyboards and summarize."
 uv run python scripts/discover_tools.py
 uv run python scripts/smoke_product_tools.py
 uv run python scripts/smoke_order_history.py
+uv run python scripts/smoke_order_placement.py
 ```
 
 `app.py` with no extra arguments only prints config. With a message, it runs one agent turn (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `discover_tools.py` and `smoke_product_tools.py` only need `MCP_SERVER_URL`.
@@ -61,11 +62,14 @@ Optional live product tests:
 ```bash
 MERIDIAN_PRODUCT_INTEGRATION=1 uv run pytest tests/test_product_integration.py -v
 MERIDIAN_ORDER_INTEGRATION=1 uv run pytest tests/test_order_history_integration.py -v
+MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_integration.py -v
 ```
+
+`smoke_order_placement.py` and create-order tests **write** orders; use only on the assessment MCP endpoint.
 
 ## Status
 
-Stages 0–9 complete through order-history smoke and docs. Next: order placement (Stage 10).
+Stages 0–10 complete through order placement smoke and guarded integration tests. Next: guardrails hardening (Stage 11).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 
