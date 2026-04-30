@@ -1,5 +1,7 @@
 # Meridian MCP customer support
 
+[![CI](https://github.com/Oluwatosin-AiOps/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Oluwatosin-AiOps/mcp/actions/workflows/ci.yml)
+
 Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable HTTP). Inventory and orders come from tools, not free‑text guesses.
 
 ## Deployment (EC2)
@@ -54,6 +56,11 @@ uv run pytest -m "not integration" -q     # Skip integration markers
 ```
 
 Smoke scripts (MCP only): `scripts/discover_tools.py`, `smoke_product_tools.py`, `smoke_order_history.py`, `smoke_order_placement.py` (placement creates orders—use only on the MCP endpoint you intend).
+
+## CI/CD
+
+- **CI** (`.github/workflows/ci.yml`): on every push and PR to `main`, runs `uv sync --frozen`, `pytest -m "not integration"`, and `docker build` so the offline test suite and image stay green.
+- **Deploy EC2** (`.github/workflows/deploy-ec2.yml`): manual only — **Actions → Deploy EC2 → Run workflow**. Add repository secrets **`EC2_HOST`**, **`EC2_USER`**, **`EC2_SSH_PRIVATE_KEY`** (private half of the key pair that can SSH into the box). Default path **`/home/ubuntu/mcp`** must match where the repo was cloned; `.env` stays on the server (not in GitHub). Open **TCP 22** only from sources you trust (GitHub-hosted runners use changing egress IPs unless you use a self-hosted runner or other tunnel).
 
 ## Docs
 

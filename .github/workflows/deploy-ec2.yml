@@ -1,0 +1,31 @@
+# Optional: redeploy the EC2 instance from GitHub after CI passes locally or on main.
+# Configure repo secrets: EC2_HOST, EC2_USER, EC2_SSH_PRIVATE_KEY (PEM for the key pair).
+
+name: Deploy EC2
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_path:
+        description: Absolute path to the repo on the server
+        required: true
+        default: /home/ubuntu/mcp
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull and restart stack on EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ github.event.inputs.deploy_path }}"
+            git fetch origin main
+            git checkout main
+            git pull origin main
+            docker compose up -d --build
