@@ -9,6 +9,7 @@ from typing import Any
 import anyio
 from openai import APIStatusError, AsyncOpenAI
 
+from app.auth_session import SessionAuthState
 from app.config import ConfigurationError, Settings
 from app.guardrails import check_user_message, clip_assistant_reply
 from app.mcp_client import call_tool_text, tools_for_openai
@@ -21,7 +22,8 @@ SYSTEM_PROMPT = """You are Meridian Electronics customer support.
 
 Rules:
 - Use the provided tools for anything about products, stock, customers, PIN verification, or orders. Do not invent SKUs, prices, inventory, or order data.
-- Before listing orders, viewing order details, or creating orders, the customer must verify with verify_customer_pin (email + PIN). Use the customer id returned in that tool output for list_orders or create_order.
+- Before listing orders, viewing order details, creating orders, or loading a customer profile by id, the user must successfully call verify_customer_pin in this session. The runtime blocks those tools until then.
+- After verification, use the customer id from that tool output for list_orders and create_order when needed.
 - For product browse/search, use list_products, search_products, or get_product as appropriate.
 - If a tool errors, explain briefly in plain language and suggest what the customer can try next.
 - If you need an email, PIN, SKU, or quantity, ask clearly.
@@ -44,6 +46,7 @@ async def run_agent(user_message: str, settings: Settings) -> str:
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()
                 openai_tools = await tools_for_openai(session)
+                auth = SessionAuthState()
 
                 for _ in range(MAX_TOOL_ROUNDS):
                     try:
@@ -87,7 +90,13 @@ async def run_agent(user_message: str, settings: Settings) -> str:
                                     args = {}
                             except json.JSONDecodeError:
                                 args = {}
-                            body = await call_tool_text(session, name, args)
+                            allowed, auth_msg, adj_args = auth.prepare_tool_call(name, args)
+                            if allowed:
+                                body = await call_tool_text(session, name, adj_args)
+                            else:
+                                body = auth_msg
+                            if name == "verify_customer_pin":
+                                auth.record_verify_customer_pin_result(body)
                             messages.append(
                                 {
                                     "role": "tool",

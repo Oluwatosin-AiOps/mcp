@@ -9,6 +9,7 @@ app/
   mcp_client.py     — tool definitions for OpenAI; call tools; format results
   agent.py          — async MCP session + OpenAI tool loop
   guardrails.py     — user input checks; assistant reply clipping
+  auth_session.py   — verify_customer_pin unlocks sensitive MCP tools
   ui.py             — Gradio chat surface
 tests/              — pytest
 docs/               — framing, MCP notes, test output, prompt log

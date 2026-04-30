@@ -34,6 +34,7 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 | `app/mcp_client.py` | Tool specs for OpenAI, ``tools/call``, format results for the model |
 | `app/agent.py` | GPT-4o-mini tool loop over MCP (Streamable HTTP) |
 | `app/guardrails.py` | User input checks and reply clipping |
+| `app/auth_session.py` | PIN verification gates order/account MCP tools per turn |
 | `app/ui.py` | Gradio chat UI |
 | `tests/` | pytest |
 | `docs/` | Problem framing, MCP discovery notes, test results, prompt log |
@@ -55,7 +56,7 @@ uv run python scripts/discover_tools.py
 
 ## Status
 
-Stages 0–6 complete through the MCP-backed agent. Next: tighten auth and flows (Stages 7–8).
+Stages 0–7 complete: MCP agent plus enforced PIN gate for orders/account tools. Next: product edge cases (Stage 8).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 
