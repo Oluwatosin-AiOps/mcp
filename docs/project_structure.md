@@ -8,11 +8,11 @@ app/
   config.py         — environment loading and validation
   mcp_client.py     — tool definitions for OpenAI; call tools; format results
   agent.py          — async MCP session + OpenAI tool loop
-  guardrails.py     — user input checks; assistant reply clipping
+  guardrails.py     — input limits, injection/privilege refusal, sk-* pattern filter; reply clipping
   auth_session.py   — verify_customer_pin unlocks sensitive MCP tools
   ui.py             — Gradio chat surface
 tests/              — pytest
-docs/               — framing, MCP notes, test output, prompt log
+docs/               — framing, MCP notes, guardrails, test output, prompt log
 scripts/            — discovery + smoke scripts (`smoke_order_placement.py` mutates orders); see `docs/`
 app.py              — Hugging Face Spaces / local entrypoint
 pyproject.toml      — declared dependencies (uv)

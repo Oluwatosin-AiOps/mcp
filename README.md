@@ -33,11 +33,11 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 | `app/config.py` | Load `.env`, validate `MCP_SERVER_URL`, `OPENAI_API_KEY`, `MODEL_NAME` |
 | `app/mcp_client.py` | Tool specs for OpenAI, ``tools/call``, format results for the model |
 | `app/agent.py` | GPT-4o-mini tool loop over MCP (Streamable HTTP) |
-| `app/guardrails.py` | User input checks and reply clipping |
+| `app/guardrails.py` | Input validation, injection/privilege refusal, secret-pattern filter, reply clipping |
 | `app/auth_session.py` | PIN verification gates order/account MCP tools per turn |
 | `app/ui.py` | Gradio chat UI |
 | `tests/` | pytest |
-| `docs/` | Problem framing, MCP discovery notes, test results, prompt log |
+| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, test results, prompt log |
 | `scripts/` | Standalone tool discovery (Stage 5) |
 | `app.py` | Space/local entrypoint |
 
@@ -69,7 +69,7 @@ MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_int
 
 ## Status
 
-Stages 0–10 complete through order placement smoke and guarded integration tests. Next: guardrails hardening (Stage 11).
+Stages 0–11 complete (guardrails: injection/privilege/refusal tests + assistant secret-pattern filter). Next: tests consolidation / results doc (Stage 12).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 
