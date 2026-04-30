@@ -1,25 +1,19 @@
----
-title: Meridian MCP Customer Support
-emoji: 🛒
-colorFrom: blue
-colorTo: gray
-sdk: gradio
-sdk_version: 6.13.0
-python_version: "3.12"
-app_file: app.py
-pinned: false
-short_description: GPT-4o-mini + MCP customer support chatbot.
-tags:
-  - gradio
-  - mcp
-  - openai
----
-
 # Meridian MCP customer support
 
 Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable HTTP). Inventory and orders come from tools, not free‑text guesses.
 
-The YAML header is for [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference).
+## Deployment (EC2)
+
+This project is run on **AWS EC2** (not Hugging Face Spaces—Spaces builds were unreliable for this setup). Standard pattern:
+
+1. **Ubuntu 22.04 or 24.04 LTS** instance; security group allows **inbound TCP 7860** (and **80/443** if you terminate TLS on the box).
+2. Install Docker: `curl -fsSL https://get.docker.com | sudo sh` (on newer Ubuntu, `apt install docker-compose-plugin` alone often fails).
+3. Clone the repo, `cp .env.example .env`, set `OPENAI_API_KEY` and `MCP_SERVER_URL`.
+4. `docker compose up -d --build` — app at **`http://<instance-public-dns>:7860`**.
+
+Details: **`docs/aws_deployment.md`**, **`docker-compose.yml`**, optional **`scripts/ec2_bootstrap_ubuntu.sh`**.
+
+For **HTTPS**, use Caddy or an ALB + ACM (see the same doc). **ECS Fargate + ALB** is an alternative if you already use ECR.
 
 ## Architecture
 
@@ -40,7 +34,7 @@ The diagram mentions tracing stacks (e.g. Langfuse); this repo does not wire tho
 
 - OpenAI SDK + official MCP Python SDK (no LangChain).
 - Default model `gpt-4o-mini` (`MODEL_NAME`).
-- uv dev (`pyproject.toml` / `uv.lock`); `requirements.txt` from `uv export` for pip / Spaces.
+- uv dev (`pyproject.toml` / `uv.lock`); `requirements.txt` from `uv export` for pip and container builds.
 - PIN gating and customer scope in code (`auth_session.py`), aligned with `docs/prompt_iterations.md`.
 - Live MCP tests behind `MERIDIAN_*` env vars (`docs/test_results.md`).
 
@@ -63,14 +57,6 @@ uv run pytest -m "not integration" -q     # Skip integration markers
 
 Smoke scripts (MCP only): `scripts/discover_tools.py`, `smoke_product_tools.py`, `smoke_order_history.py`, `smoke_order_placement.py` (placement creates orders—use only on the MCP endpoint you intend).
 
-## Hugging Face Spaces
-
-Create a Gradio Space from this repo; set secrets `OPENAI_API_KEY`, `MCP_SERVER_URL`, optional `MODEL_NAME`. First build can take 10–20 minutes on free CPU. See Space **Logs** if stuck. `PORT` is handled in `app/ui.py`.
-
-## AWS
-
-Not on S3—needs a VM or container service. App Runner closed to new accounts from 2026‑04‑30. Use EC2 + `docker compose` (`docs/aws_deployment.md`, `docker-compose.yml`) or ECS Fargate + ALB. On newer Ubuntu, install Docker with `curl -fsSL https://get.docker.com | sudo sh`, not only `apt install docker-compose-plugin`.
-
 ## Docs
 
 | Path | Content |
@@ -80,7 +66,7 @@ Not on S3—needs a VM or container service. App Runner closed to new accounts f
 | `docs/guardrails.md` | Input/output filters |
 | `docs/test_results.md` | Pytest layout |
 | `docs/prompt_iterations.md` | System prompt versions |
-| `docs/aws_deployment.md` | EC2 / ECS |
+| `docs/aws_deployment.md` | EC2, HTTPS, ECS |
 | `docs/project_structure.md` | Tree |
 
 ## Requirements export

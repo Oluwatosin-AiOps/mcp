@@ -8,7 +8,7 @@ scripts/       discovery + smoke scripts
 docs/
 docker-compose.yml
 pyproject.toml / uv.lock / requirements.txt / .python-version
-README.md      Spaces YAML + body
+README.md      overview + EC2 deploy notes
 .env.example
 ```
 
