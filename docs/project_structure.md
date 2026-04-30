@@ -13,7 +13,7 @@ app/
   ui.py             — Gradio chat surface
 tests/              — pytest
 docs/               — framing, MCP notes, test output, prompt log
-scripts/            — `discover_tools.py`, `smoke_product_tools.py`; notes in `docs/`
+scripts/            — `discover_tools.py`, `smoke_product_tools.py`, `smoke_order_history.py`; notes in `docs/`
 app.py              — Hugging Face Spaces / local entrypoint
 pyproject.toml      — declared dependencies (uv)
 uv.lock             — locked versions
