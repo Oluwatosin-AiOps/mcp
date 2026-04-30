@@ -47,11 +47,14 @@ See `docs/project_structure.md` for the tree and import boundaries.
 ```bash
 uv run pytest
 uv run python app.py
+uv run python scripts/discover_tools.py
 ```
+
+`discover_tools.py` needs `MCP_SERVER_URL` in `.env` only (no OpenAI key). It prints each tool name, description, and JSON Schemas.
 
 ## Status
 
-Stages 0–4 complete through settings validation. Next: MCP discovery (Stage 5).
+Stages 0–5 complete through MCP tool discovery. Next: agent loop (Stage 6).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 

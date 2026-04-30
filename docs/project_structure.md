@@ -12,7 +12,7 @@ app/
   ui.py             — Gradio chat surface
 tests/              — pytest
 docs/               — framing, MCP notes, test output, prompt log
-scripts/            — standalone discovery script (Stage 5)
+scripts/            — `discover_tools.py` (Streamable HTTP); notes in `docs/mcp_tools.md`
 app.py              — Hugging Face Spaces / local entrypoint
 pyproject.toml      — declared dependencies (uv)
 uv.lock             — locked versions
