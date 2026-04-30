@@ -1,6 +1,6 @@
-# Assessment PIN test users
+# PIN test users
 
-Use these with `verify_customer_pin` for demos and pytest scenarios that hit the live MCP server (optional integration tests).
+For `verify_customer_pin` demos and optional live MCP tests.
 
 | Email | PIN |
 |-------|-----|
