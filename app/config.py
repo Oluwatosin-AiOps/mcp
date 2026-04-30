@@ -27,14 +27,23 @@ class Settings:
     model_name: str
 
     @classmethod
-    def from_env(cls, *, require_openai_key: bool = True) -> Settings:
+    def from_env(
+        cls,
+        *,
+        require_openai_key: bool = True,
+        load_env_file: bool = True,
+    ) -> Settings:
         """
         Read settings from the environment.
 
         Use ``require_openai_key=False`` for MCP-only utilities (e.g. tool discovery)
         where the OpenAI key is not used.
+
+        Set ``load_env_file=False`` in tests so values come only from ``os.environ``
+        (otherwise a repo ``.env`` would fill gaps after ``delenv``).
         """
-        load_dotenv_safe()
+        if load_env_file:
+            load_dotenv_safe()
 
         mcp_url = os.getenv("MCP_SERVER_URL", "").strip()
         api_key = os.getenv("OPENAI_API_KEY", "").strip()
