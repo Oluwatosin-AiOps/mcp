@@ -1,6 +1,6 @@
 # AWS — long-running public link
 
-S3 is static storage only—run the app on a VM or container service.
+Meridian runs as a containerized HTTP service. **EC2 + Docker Compose** and **ECS Fargate** are the patterns documented here.
 
 App Runner: **new customers not accepted** from 2026‑04‑30 per AWS; use EC2 or ECS below.
 
@@ -37,17 +37,17 @@ docker push "${ECR_URI}:latest"
 
 ---
 
-## A) EC2 + Docker Compose (recommended default)
+## A) EC2 + Docker Compose
 
 ### 1. Launch EC2
 
-- **AMI:** Prefer **Ubuntu 22.04 LTS** or **24.04 LTS** (“Jammy” / “Noble”). **Avoid bleeding‑edge** Ubuntu images for demos if you can: mirrors sometimes omit **`docker-compose-plugin`** and **`docker.io`** until updates land (you may see codenames like **Resolute** on non‑LTS releases).
+- **AMI:** **Ubuntu 22.04 LTS** or **24.04 LTS** (“Jammy” / “Noble”). On some non‑LTS images, default apt mirrors may not yet ship a working **`docker-compose-plugin`**; the install script below avoids that.
 - **Instance type:** `t3.micro` / `t3a.micro` or `t3.small`.
 - **Security group:** inbound **TCP 7860** (and **80/443** if you add HTTPS below).
 
 ### 2. Install Docker + Compose (works on LTS and most newer Ubuntu)
 
-Do **not** rely only on `apt install docker.io docker-compose-plugin` on brand‑new Ubuntu releases — use **Docker’s installer** (ships **Docker Engine + Compose v2**):
+Use **Docker’s installer** for **Docker Engine + Compose v2** (covers releases where `apt install docker.io docker-compose-plugin` alone is incomplete):
 
 ```bash
 sudo apt-get update

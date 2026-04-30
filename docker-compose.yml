@@ -1,4 +1,4 @@
-# Browser: http://<public-ip>:7860  — bind host 0.0.0.0 so EC2 is reachable from outside.
+# Listen on 0.0.0.0:7860 so Gradio is reachable on the instance public IP + port.
 services:
   meridian:
     build: .

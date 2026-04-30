@@ -4,7 +4,7 @@ Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable
 
 ## Deployment (EC2)
 
-This project is run on **AWS EC2** (not Hugging Face Spaces—Spaces builds were unreliable for this setup). Standard pattern:
+**Deployment:** AWS EC2 with Docker Compose and Gradio on **7860**. Typical bootstrap:
 
 1. **Ubuntu 22.04 or 24.04 LTS** instance; security group allows **inbound TCP 7860** (and **80/443** if you terminate TLS on the box).
 2. Install Docker: `curl -fsSL https://get.docker.com | sudo sh` (on newer Ubuntu, `apt install docker-compose-plugin` alone often fails).
@@ -28,7 +28,7 @@ For **HTTPS**, use Caddy or an ALB + ACM (see the same doc). **ECS Fargate + ALB
 | MCP | `app/mcp_client.py` |
 | Config | `app/config.py` |
 
-The diagram mentions tracing stacks (e.g. Langfuse); this repo does not wire those—only tests, smoke scripts, and logs.
+The architecture diagram may show tracing stacks (e.g. Langfuse); the running code uses pytest, smoke scripts, and container logs.
 
 ## Decisions
 
