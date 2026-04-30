@@ -31,9 +31,9 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 | Path | Role |
 |------|------|
 | `app/config.py` | Load `.env`, validate `MCP_SERVER_URL`, `OPENAI_API_KEY`, `MODEL_NAME` |
-| `app/mcp_client.py` | MCP session and tool calls (official Python SDK) |
-| `app/agent.py` | LLM tool-calling loop |
-| `app/guardrails.py` | Validation, auth enforcement, unsafe prompt handling |
+| `app/mcp_client.py` | Tool specs for OpenAI, ``tools/call``, format results for the model |
+| `app/agent.py` | GPT-4o-mini tool loop over MCP (Streamable HTTP) |
+| `app/guardrails.py` | User input checks and reply clipping |
 | `app/ui.py` | Gradio chat UI |
 | `tests/` | pytest |
 | `docs/` | Problem framing, MCP discovery notes, test results, prompt log |
@@ -47,14 +47,15 @@ See `docs/project_structure.md` for the tree and import boundaries.
 ```bash
 uv run pytest
 uv run python app.py
+uv run python app.py "Search for wireless keyboards and summarize."
 uv run python scripts/discover_tools.py
 ```
 
-`discover_tools.py` needs `MCP_SERVER_URL` in `.env` only (no OpenAI key). It prints each tool name, description, and JSON Schemas.
+`app.py` with no extra arguments only prints config. With a message, it runs one agent turn (needs `OPENAI_API_KEY` and `MCP_SERVER_URL`). `discover_tools.py` only needs `MCP_SERVER_URL`.
 
 ## Status
 
-Stages 0–5 complete through MCP tool discovery. Next: agent loop (Stage 6).
+Stages 0–6 complete through the MCP-backed agent. Next: tighten auth and flows (Stages 7–8).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 
