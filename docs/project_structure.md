@@ -5,6 +5,7 @@ Minimal layout for the Meridian MCP chatbot. Anything not listed here is optiona
 ```text
 app/
   __init__.py       — application package
+  config.py         — environment loading and validation
   mcp_client.py     — MCP transport and tool execution via official SDK
   agent.py          — GPT-4o-mini tool-calling loop
   guardrails.py     — input checks, auth rules, refusal paths

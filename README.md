@@ -30,6 +30,7 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 
 | Path | Role |
 |------|------|
+| `app/config.py` | Load `.env`, validate `MCP_SERVER_URL`, `OPENAI_API_KEY`, `MODEL_NAME` |
 | `app/mcp_client.py` | MCP session and tool calls (official Python SDK) |
 | `app/agent.py` | LLM tool-calling loop |
 | `app/guardrails.py` | Validation, auth enforcement, unsafe prompt handling |
