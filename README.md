@@ -11,7 +11,7 @@ This project is run on **AWS EC2** (not Hugging Face Spaces—Spaces builds were
 3. Clone the repo, `cp .env.example .env`, set `OPENAI_API_KEY` and `MCP_SERVER_URL`.
 4. `docker compose up -d --build` — open **`http://<your-public-ip>:7860`** (Gradio is **not** on port 80; `http://ip/` alone will show connection refused).
 
-Details: **`docs/aws_deployment.md`**, **`docker-compose.yml`**, optional **`scripts/ec2_bootstrap_ubuntu.sh`**.
+Details: **`docs/aws_deployment.md`**, **`docker-compose.yml`**, **`scripts/ec2_diagnose.sh`** (run on the instance), **`scripts/ec2_bootstrap_ubuntu.sh`**.
 
 For **HTTPS**, use Caddy or an ALB + ACM (see the same doc). **ECS Fargate + ALB** is an alternative if you already use ECR.
 

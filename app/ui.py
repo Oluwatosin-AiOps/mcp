@@ -55,6 +55,7 @@ def _server_port() -> int:
 
 
 def launch_ui() -> None:
-    """Bind 0.0.0.0; port from PORT or GRADIO_SERVER_PORT or 7860."""
+    """Bind all interfaces; port from PORT / GRADIO_SERVER_PORT / 7860."""
     demo = build_chat_interface()
-    demo.launch(server_name="0.0.0.0", server_port=_server_port())
+    host = (os.environ.get("GRADIO_SERVER_NAME") or "0.0.0.0").strip() or "0.0.0.0"
+    demo.launch(server_name=host, server_port=_server_port())

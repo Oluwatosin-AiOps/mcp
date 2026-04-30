@@ -90,7 +90,21 @@ docker compose logs -f --tail 50
 curl -sSI http://127.0.0.1:7860/ | head -n5
 ```
 
-If `curl` returns **200** locally but the browser fails, the problem is almost always **wrong URL (missing `:7860`)** or the **security group**.
+If `curl` works on the instance but the browser does not, fix **security group** (TCP **7860**) or **UFW** on Ubuntu:
+
+```bash
+sudo ufw status verbose
+sudo ufw allow 7860/tcp && sudo ufw reload   # only if ufw is active
+```
+
+Repo helper (clone/pull latest first):
+
+```bash
+cd ~/mcp   # your clone path
+git pull
+bash scripts/ec2_diagnose.sh
+docker compose down && docker compose up -d --build
+```
 
 ### Optional: HTTPS on EC2 with **Caddy** (free TLS, you need a **domain**)
 

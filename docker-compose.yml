@@ -1,12 +1,13 @@
-# cp .env.example .env && docker compose up -d --build  →  http://<host>:7860
+# Browser: http://<public-ip>:7860  — bind host 0.0.0.0 so EC2 is reachable from outside.
 services:
   meridian:
     build: .
     image: meridian-mcp:latest
     ports:
-      - "7860:7860"
+      - "0.0.0.0:7860:7860"
     env_file:
       - .env
     environment:
       PORT: "7860"
+      GRADIO_SERVER_NAME: "0.0.0.0"
     restart: unless-stopped

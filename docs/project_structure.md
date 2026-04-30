@@ -4,7 +4,7 @@
 app/           package: config, mcp_client, agent, guardrails, auth_session, ui
 app.py         entry: Gradio (no args), --print-config, or CLI agent turn
 tests/
-scripts/       discovery + smoke scripts
+scripts/       discovery, smoke scripts, `ec2_diagnose.sh`
 docs/
 docker-compose.yml
 pyproject.toml / uv.lock / requirements.txt / .python-version
