@@ -106,6 +106,10 @@ More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [S
 4. Under **Settings → Variables and secrets**, add **`OPENAI_API_KEY`** and **`MCP_SERVER_URL`** as **Secrets**. The UI can still appear without them; the first chat will show a configuration error until they are set.
 5. If the build succeeded once but the app is wedged, use **Settings → Factory rebuild**, then wait again for dependency install.
 
+### AWS instead of Spaces?
+
+**S3 alone cannot run this app** (it is not a web server for Python). For a **public URL** on AWS you need **compute** (e.g. **EC2** or **App Runner**) and optionally **HTTPS** in front. See **`docs/aws_deployment.md`** and the repo **`Dockerfile`** for a container you can run on EC2 or push to **ECR** for App Runner.
+
 ---
 
 ## Documentation
@@ -119,6 +123,7 @@ More: [Gradio on Spaces](https://huggingface.co/docs/hub/spaces-sdks-gradio), [S
 | `docs/test_results.md` | Pytest layout and last captured summary |
 | `docs/prompt_iterations.md` | System prompt versions (Stage 16) |
 | `docs/project_structure.md` | Directory layout and import boundaries |
+| `docs/aws_deployment.md` | AWS options (S3 vs compute), Docker run sketch |
 
 ---
 
