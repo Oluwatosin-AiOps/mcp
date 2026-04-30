@@ -13,10 +13,13 @@ from app.mcp_client import format_tool_result
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
-pytestmark = pytest.mark.skipif(
-    os.environ.get("MERIDIAN_ORDER_INTEGRATION") != "1",
-    reason="Set MERIDIAN_ORDER_INTEGRATION=1 for live MCP order history tests",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        os.environ.get("MERIDIAN_ORDER_INTEGRATION") != "1",
+        reason="Set MERIDIAN_ORDER_INTEGRATION=1 for live MCP order history tests",
+    ),
+]
 
 _UUID_RE = re.compile(
     r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",

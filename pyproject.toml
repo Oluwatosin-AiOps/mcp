@@ -14,3 +14,6 @@ dependencies = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: optional live MCP tests (enable with MERIDIAN_* env vars; see docs/test_results.md)",
+]

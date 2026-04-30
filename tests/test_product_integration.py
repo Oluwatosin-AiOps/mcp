@@ -12,10 +12,13 @@ from app.mcp_client import format_tool_result
 from mcp.client.session import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
-pytestmark = pytest.mark.skipif(
-    os.environ.get("MERIDIAN_PRODUCT_INTEGRATION") != "1",
-    reason="Set MERIDIAN_PRODUCT_INTEGRATION=1 to hit the real MCP server",
-)
+pytestmark = [
+    pytest.mark.integration,
+    pytest.mark.skipif(
+        os.environ.get("MERIDIAN_PRODUCT_INTEGRATION") != "1",
+        reason="Set MERIDIAN_PRODUCT_INTEGRATION=1 to hit the real MCP server",
+    ),
+]
 
 
 def _settings() -> Settings:

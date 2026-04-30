@@ -65,7 +65,10 @@ class SessionAuthState:
             return True, "", args
 
         if tool_name == "create_order":
-            if args.get("customer_id") != self.verified_customer_id:
+            cid = args.get("customer_id")
+            if cid is None:
+                args["customer_id"] = self.verified_customer_id
+            elif cid != self.verified_customer_id:
                 return (
                     False,
                     "Orders can only be created for the verified customer id.",
@@ -74,7 +77,10 @@ class SessionAuthState:
             return True, "", args
 
         if tool_name == "get_customer":
-            if args.get("customer_id") != self.verified_customer_id:
+            cid = args.get("customer_id")
+            if cid is None:
+                args["customer_id"] = self.verified_customer_id
+            elif cid != self.verified_customer_id:
                 return (
                     False,
                     "You can only load the customer profile for the verified account.",

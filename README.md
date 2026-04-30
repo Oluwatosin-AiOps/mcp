@@ -37,7 +37,7 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 | `app/auth_session.py` | PIN verification gates order/account MCP tools per turn |
 | `app/ui.py` | Gradio chat UI |
 | `tests/` | pytest |
-| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, test results, prompt log |
+| `docs/` | Problem framing, MCP notes, **`guardrails.md`**, **`test_results.md`**, prompt log |
 | `scripts/` | Standalone tool discovery (Stage 5) |
 | `app.py` | Space/local entrypoint |
 
@@ -47,6 +47,7 @@ See `docs/project_structure.md` for the tree and import boundaries.
 
 ```bash
 uv run pytest
+uv run pytest -m "not integration"   # same fast suite when integration tests are marked
 uv run python app.py
 uv run python app.py "Search for wireless keyboards and summarize."
 uv run python scripts/discover_tools.py
@@ -69,7 +70,7 @@ MERIDIAN_CREATE_ORDER_INTEGRATION=1 uv run pytest tests/test_order_placement_int
 
 ## Status
 
-Stages 0–11 complete (guardrails: injection/privilege/refusal tests + assistant secret-pattern filter). Next: tests consolidation / results doc (Stage 12).
+Stages 0–12 complete (pytest coverage map, `docs/test_results.md`, `@integration` marker). Next: Gradio UI (Stage 13).
 
 Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
 

@@ -12,7 +12,7 @@ app/
   auth_session.py   — verify_customer_pin unlocks sensitive MCP tools
   ui.py             — Gradio chat surface
 tests/              — pytest
-docs/               — framing, MCP notes, guardrails, test output, prompt log
+docs/               — framing, MCP notes, guardrails, **test_results.md**, prompt log
 scripts/            — discovery + smoke scripts (`smoke_order_placement.py` mutates orders); see `docs/`
 app.py              — Hugging Face Spaces / local entrypoint
 pyproject.toml      — declared dependencies (uv)
