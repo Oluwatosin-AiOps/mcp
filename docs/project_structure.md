@@ -14,8 +14,11 @@ tests/              — pytest
 docs/               — framing, MCP notes, test output, prompt log
 scripts/            — standalone discovery script (Stage 5)
 app.py              — Hugging Face Spaces / local entrypoint
+pyproject.toml      — declared dependencies (uv)
+uv.lock             — locked versions
+.python-version     — interpreter pin for uv
 README.md
-requirements.txt
+requirements.txt    — exported from uv for pip / Hugging Face Spaces
 .env.example
 ```
 

@@ -1,0 +1,16 @@
+[project]
+name = "meridian-mcp-chatbot"
+version = "0.1.0"
+description = "Meridian Electronics MCP customer support chatbot prototype"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.2.0",
+    "openai>=1.40.0",
+    "gradio>=4.0.0",
+    "python-dotenv>=1.0.0",
+    "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

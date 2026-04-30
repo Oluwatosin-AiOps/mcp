@@ -4,21 +4,21 @@ Prototype chatbot that uses the official MCP Python SDK and OpenAI tool calling 
 
 ## Setup (Stage 0)
 
-1. **Python 3.10+** is required (the `mcp` package does not install on 3.9).
+1. Install [uv](https://docs.astral.sh/uv/installation/). The repo pins **Python 3.12** in `.python-version`; uv will download that runtime if it is not installed yet.
 
-2. Create a virtual environment and install dependencies:
+2. Install dependencies from the lockfile:
 
    ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate   # Windows: .venv\Scripts\activate
-   pip install -r requirements.txt
+   uv sync
    ```
 
-   If your default `python3` is older than 3.10, use a newer runtime (e.g. install from [python.org](https://www.python.org/downloads/) or use [uv](https://docs.astral.sh/uv/): `uv venv --python 3.12 .venv` then `uv pip install -r requirements.txt --python .venv/bin/python`).
+   uv keeps a project virtual environment under `.venv`. You do not need to activate it if you run everything through `uv run` (below).
 
-3. **Environment:** copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Never commit `.env`.
+3. **Without uv:** use Python **3.10+** and `pip install -r requirements.txt`. That file is exported from `uv.lock` so Hugging Face Spaces and plain pip stay reproducible.
 
-4. **GitHub repo:** create an empty repository on GitHub (e.g. under your user or org), then:
+4. **Environment:** copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Never commit `.env`.
+
+5. **GitHub repo:** create an empty repository on GitHub (e.g. under your user or org), then:
 
    ```bash
    git remote add origin https://github.com/<your-account>/<your-repo>.git
@@ -45,9 +45,16 @@ See `docs/project_structure.md` for the tree and import boundaries.
 ## Commands
 
 ```bash
-pytest
+uv run pytest
+uv run python app.py
 ```
 
 ## Status
 
-Stages 0–3 complete: scaffold, framing, Video 1, and documented layout. Next: config validation (Stage 4) and MCP discovery (Stage 5).
+Stages 0–4 complete through settings validation. Next: MCP discovery (Stage 5).
+
+Dependency source of truth is **`pyproject.toml`** + **`uv.lock`**. Regenerate **`requirements.txt`** after dependency changes:
+
+```bash
+uv export --format requirements-txt --no-hashes --no-annotate > requirements.txt
+```
