@@ -27,7 +27,8 @@ def settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
 )
 def test_run_agent_blocks_user_input(settings: Settings, user_message: str, fragment: str) -> None:
     async def inner() -> str:
-        return await run_agent(user_message, settings)
+        out, _vid = await run_agent(user_message, settings)
+        return out
 
     out = anyio.run(inner, backend="asyncio")
     assert fragment.lower() in out.lower()

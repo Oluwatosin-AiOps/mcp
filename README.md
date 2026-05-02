@@ -6,6 +6,34 @@ Gradio UI + GPT-4o-mini tool-calling against Meridian’s MCP server (Streamable
 
 **CI/CD:** GitHub Actions on **`main`** — automated **pytest** (offline suite) plus **Docker image build** on every push/PR, and an optional **manual EC2 deploy** workflow. See [CI/CD](#cicd) below.
 
+## Screenshots
+
+Gradio UI running locally; images live under **`sc/`**.
+
+### Sign-in, account banner, and suggested prompts
+
+Sign in with **email + PIN** before orders or order history; product questions work unsigned. Suggested prompts show example flows (browse, orders, placement).
+
+![Sign-in area and suggested prompts](sc/a.png)
+
+### Product browse (MCP-backed catalog)
+
+Listing active monitors: prices and stock come from MCP tools, not free‑text guesses.
+
+![Active monitors from list_products](sc/b.png)
+
+### Signed-in session
+
+After **Sign in**, the banner shows **Signed in as …**; the same chat thread supports follow-ups (including short confirmations like *yes, proceed*).
+
+![Signed-in account banner and chat](sc/c.png)
+
+### Order placement
+
+Place order → confirm → **`create_order`** via MCP; assistant returns order id, status, and total.
+
+![Order confirmation after create_order](sc/d.png)
+
 ## Deployment (EC2)
 
 **Deployment:** AWS EC2 with Docker Compose and Gradio on **7860**. Typical bootstrap:
@@ -78,6 +106,7 @@ Pipelines live under **`.github/workflows/`** and run on this repository’s **A
 | `docs/prompt_iterations.md` | System prompt versions |
 | `docs/aws_deployment.md` | EC2 + Docker Compose |
 | `docs/project_structure.md` | Tree |
+| `sc/` | README screenshots (UI flows) |
 | `.github/workflows/ci.yml` | CI: pytest + Docker build |
 | `.github/workflows/deploy-ec2.yml` | Optional manual EC2 redeploy |
 

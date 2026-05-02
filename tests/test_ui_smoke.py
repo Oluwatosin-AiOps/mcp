@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import gradio as gr
 
-from app.ui import build_chat_interface
+from app.ui import build_demo
 
 
-def test_build_chat_interface_returns_chat_interface() -> None:
-    demo = build_chat_interface()
-    assert isinstance(demo, gr.ChatInterface)
+def test_build_demo_returns_blocks() -> None:
+    demo = build_demo()
+    assert isinstance(demo, gr.Blocks)

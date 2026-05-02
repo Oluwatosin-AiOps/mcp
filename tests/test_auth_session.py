@@ -1,4 +1,4 @@
-from app.auth_session import SessionAuthState
+from app.auth_session import SessionAuthState, normalize_session_customer_id
 
 
 def test_sensitive_tool_blocked_until_verify():
@@ -21,6 +21,35 @@ def test_verify_failure_does_not_record():
     assert auth.verified_customer_id is None
 
 
+def test_failed_verify_does_not_clear_prior_session():
+    uid = "11111111-2222-3333-4444-555555555555"
+    auth = SessionAuthState(uid)
+    auth.record_verify_customer_pin_result("incorrect PIN invalid")
+    assert auth.verified_customer_id == uid
+
+
+def test_prior_verified_allows_orders_without_new_verify():
+    uid = "11111111-2222-3333-4444-555555555555"
+    auth = SessionAuthState(uid)
+    ok, msg, args = auth.prepare_tool_call("list_orders", {})
+    assert ok
+    assert args["customer_id"] == uid
+
+
+def test_invalid_prior_session_id_rejected():
+    auth = SessionAuthState("not-a-uuid")
+    ok, msg, _ = auth.prepare_tool_call("list_orders", {})
+    assert not ok
+    assert "verify" in msg.lower()
+
+
+def test_normalize_session_customer_id_accepts_uuid():
+    u = "41c2903a-f1a5-47b7-a81d-86b50ade220f"
+    assert normalize_session_customer_id(u) == u
+    assert normalize_session_customer_id("  " + u + " ") == u
+    assert normalize_session_customer_id("nope") is None
+
+
 def test_list_orders_injects_customer_id():
     auth = SessionAuthState()
     auth.record_verify_customer_pin_result(
@@ -32,33 +61,32 @@ def test_list_orders_injects_customer_id():
     assert args["customer_id"] == "11111111-2222-3333-4444-555555555555"
 
 
-def test_list_orders_rejects_other_customer():
+def test_list_orders_overwrites_wrong_model_customer_id():
+    uid = "11111111-2222-3333-4444-555555555555"
     auth = SessionAuthState()
-    auth.record_verify_customer_pin_result(
-        "OK id 11111111-2222-3333-4444-555555555555 end"
-    )
-    ok, msg, _ = auth.prepare_tool_call(
+    auth.record_verify_customer_pin_result(f"OK id {uid} end")
+    ok, msg, args = auth.prepare_tool_call(
         "list_orders",
         {"customer_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"},
     )
-    assert not ok
+    assert ok and msg == ""
+    assert args["customer_id"] == uid
 
 
-def test_create_order_must_match_verified():
+def test_create_order_overwrites_wrong_model_customer_id():
+    uid = "11111111-2222-3333-4444-555555555555"
     auth = SessionAuthState()
-    auth.record_verify_customer_pin_result(
-        "OK id 11111111-2222-3333-4444-555555555555 end"
-    )
-    ok, _, _ = auth.prepare_tool_call(
+    auth.record_verify_customer_pin_result(f"OK id {uid} end")
+    ok, _, args = auth.prepare_tool_call(
         "create_order",
-        {"customer_id": "11111111-2222-3333-4444-555555555555", "items": []},
+        {"customer_id": uid, "items": []},
     )
-    assert ok
-    ok2, msg2, _ = auth.prepare_tool_call(
+    assert ok and args["customer_id"] == uid
+    ok2, _, args2 = auth.prepare_tool_call(
         "create_order",
         {"customer_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "items": []},
     )
-    assert not ok2
+    assert ok2 and args2["customer_id"] == uid
 
 
 def test_product_tools_never_blocked():
@@ -90,14 +118,13 @@ def test_get_customer_injects_customer_id_when_missing():
     assert args["customer_id"] == "11111111-2222-3333-4444-555555555555"
 
 
-def test_get_customer_rejects_other_customer_when_provided():
+def test_get_customer_overwrites_wrong_model_customer_id():
+    uid = "11111111-2222-3333-4444-555555555555"
     auth = SessionAuthState()
-    auth.record_verify_customer_pin_result(
-        "OK id 11111111-2222-3333-4444-555555555555 end"
-    )
-    ok, msg, _ = auth.prepare_tool_call(
+    auth.record_verify_customer_pin_result(f"OK id {uid} end")
+    ok, msg, args = auth.prepare_tool_call(
         "get_customer",
         {"customer_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"},
     )
-    assert not ok
-    assert "verified" in msg.lower()
+    assert ok and msg == ""
+    assert args["customer_id"] == uid
